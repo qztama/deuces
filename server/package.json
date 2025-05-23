@@ -13,6 +13,13 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "prettier": {
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
