@@ -14,11 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
-const ws_1 = require("ws");
-const uuid_1 = require("uuid");
 const redis_1 = require("./services/redis");
 const error_1 = require("./utils/error");
 const room_1 = require("./services/room");
+const ws_1 = require("./ws");
+const WSS_PORT = 3001;
 // HTTP Server
 const app = (0, express_1.default)();
 const port = 3000;
@@ -39,103 +39,11 @@ app.get('/create', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
 });
-(() => __awaiter(void 0, void 0, void 0, function* () {
-    // Redis Server
-    yield (0, redis_1.initRedis)();
-    // WebSocket Server
-    const wssPort = 3001;
-    const wss = new ws_1.WebSocketServer({ port: wssPort }, () => {
-        console.log('Websocket Server Started');
-    });
-    wss.on('connection', (client) => {
-        let connectionInfo;
-        client.send(JSON.stringify({
-            type: 'connected',
-        }));
-        client.on('message', (data) => __awaiter(void 0, void 0, void 0, function* () {
-            var message = JSON.parse(String(data));
-            console.log('Player Message:', message);
-            try {
-                switch (message.type) {
-                    case 'join': {
-                        connectionInfo = yield handleJoinRoom(client, message);
-                    }
-                }
-            }
-            catch (err) {
-                console.error(`Error on message with type: ${message.type}`, err);
-            }
-        }));
-        client.on('close', () => {
-            try {
-                if (connectionInfo) {
-                    console.log(`Connection closed for player ${connectionInfo.clientId}`);
-                    (0, room_1.disconnect)(connectionInfo.roomCode, connectionInfo.clientId);
-                }
-            }
-            catch (err) {
-                console.error('Error closing connection', err);
-            }
-        });
-    });
-    wss.on('listening', () => {
-        console.log(`Listening on port ${wssPort}`);
-    });
-}))();
-function handleJoinRoom(ws, joinMessage) {
+function startServers() {
     return __awaiter(this, void 0, void 0, function* () {
-        const { payload } = joinMessage;
-        let clientId = (0, uuid_1.v7)();
-        // user rejoined; update their clientId to their previous clientId
-        if (payload.clientId) {
-            clientId = payload.clientId;
-        }
-        const roomInfo = yield (0, room_1.join)(payload.roomCode, clientId, payload.name);
-        const response = {
-            type: 'joined',
-            payload: {
-                clientId,
-                room: roomInfo,
-            },
-        };
-        ws.send(JSON.stringify(response));
-        (0, room_1.subscribeToRoomInfo)(payload.roomCode, (roomInfo) => {
-            const response = {
-                type: 'room-updated',
-                payload: {
-                    room: roomInfo,
-                },
-            };
-            ws.send(JSON.stringify(response));
-        });
-        return {
-            clientId,
-            roomCode: roomInfo.code,
-        };
+        yield (0, redis_1.initRedisClient)();
+        (0, ws_1.initWebsocketServer)(WSS_PORT);
     });
 }
-function handleWSMessage(ws, connectionInfo, dataJson) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (dataJson.type) {
-            case 'join': {
-                const data = dataJson;
-                // user rejoined; update their clientId to their previous clientId
-                if (data.payload.clientId) {
-                    connectionInfo.clientId = data.payload.clientId;
-                }
-                const roomInfo = yield (0, room_1.join)(data.payload.roomCode, connectionInfo.clientId, data.payload.name);
-                const response = {
-                    type: 'joined',
-                    payload: {
-                        clientId: connectionInfo.clientId,
-                        room: roomInfo,
-                    },
-                };
-                ws.send(JSON.stringify(response));
-            }
-            default: {
-                console.log('Unknown message');
-            }
-        }
-    });
-}
+startServers();
+//# sourceMappingURL=index.js.map

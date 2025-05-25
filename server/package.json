@@ -7,7 +7,7 @@
     "prestart": "npm run build",
     "start": "node dist/index.js",
     "preserve": "npm run build",
-    "serve": "npx tsc -w & nodemon dist/index.js "
+    "serve": "npx tsc -w & nodemon --inspect dist/index.js "
   },
   "keywords": [],
   "author": "",

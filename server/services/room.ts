@@ -2,6 +2,7 @@ import * as redisService from './redis';
 
 import { HttpError } from '../utils/error';
 import { RedisClientType } from 'redis';
+import { WSContext } from '../ws/types';
 
 export interface Room {
     code: string;
@@ -106,7 +107,7 @@ export async function join(
 }
 
 export async function leave(roomCode: string, clientId: string) {
-    const redisClient = await redisService.getClient();
+    const redisClient = redisService.getClient();
     const roomRedisKey = getRoomRedisKey(roomCode);
     const room = await getRoomInfo(redisClient, roomRedisKey);
 
@@ -148,13 +149,19 @@ export async function disconnect(roomCode: string, clientId: string) {
 }
 
 export function subscribeToRoomInfo(
+    ctx: WSContext,
     roomCode: string,
     cb: (roomInfo: Room) => void
 ) {
     const redisClient = redisService.getClient();
     const roomRedisKey = getRoomRedisKey(roomCode);
-    redisService.subscribe(roomRedisKey, async () => {
+    redisService.subscribe(ctx, roomRedisKey, async () => {
         const roomInfo = await getRoomInfo(redisClient, roomRedisKey);
         cb(roomInfo);
     });
+}
+
+export function unsubscribeToRoomInfo(ctx: WSContext, roomCode: string) {
+    const roomRedisKey = getRoomRedisKey(roomCode);
+    redisService.unsubscribe(ctx, roomRedisKey);
 }

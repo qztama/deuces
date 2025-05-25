@@ -26,9 +26,27 @@ export interface WSMessageJoined extends WSMessageBase {
   };
 }
 
+export interface WSMessageLeave {
+  type: "leave";
+}
+
 export interface WSMessageRoomUpdated extends WSMessageBase {
   type: "room-updated";
   payload: {
+    clientId: string;
     room: Room;
   };
 }
+
+export type WSMessage =
+  | WSMessageConnected
+  | WSMessageJoin
+  | WSMessageJoined
+  | WSMessageLeave
+  | WSMessageRoomUpdated;
+
+type MessageMap<T extends { type: string }> = {
+  [M in T as M["type"]]: M;
+};
+
+export type WSMessageMap = MessageMap<WSMessage>;
