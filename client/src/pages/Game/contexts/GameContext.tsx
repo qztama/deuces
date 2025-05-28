@@ -68,12 +68,12 @@ export const GameContextProvider = ({
             console.log('WebSocket Connected');
             hasConnectedRef.current = true;
             setConnectionStatus('open');
-            // TODO: join room
         };
 
         socket.onmessage = (event) => {
             try {
                 const message = JSON.parse(event.data) as WSMessage;
+                console.log('message', message);
                 dispatchMessage(message);
             } catch (err) {
                 console.error('WebSocket message parse error', err);

@@ -4,6 +4,7 @@ import { v7 as uuidv7 } from 'uuid';
 import { WSContext } from './types';
 import { disconnect as disconnectRoom } from '../services/room';
 import { handleMessage } from './handlers';
+import { handleLeaveRoom } from './handlers/roomHandlers';
 import { getPrintFriendlyWSContext } from './utils';
 
 export function initWebsocketServer(wssPort: number) {
@@ -15,13 +16,8 @@ export function initWebsocketServer(wssPort: number) {
         let ctx: WSContext = {
             ws: client,
             clientId: uuidv7(),
+            isGameStarted: false,
         };
-
-        client.send(
-            JSON.stringify({
-                type: 'connected',
-            })
-        );
 
         client.on('message', async (data) => handleMessage(ctx, String(data)));
 
@@ -30,7 +26,12 @@ export function initWebsocketServer(wssPort: number) {
                 console.log('CLOSED', getPrintFriendlyWSContext(ctx));
                 if (ctx.roomCode) {
                     console.log(`Connection closed for player ${ctx.clientId}`);
-                    disconnectRoom(ctx.roomCode, ctx.clientId);
+
+                    if (ctx.isGameStarted) {
+                        disconnectRoom(ctx.roomCode, ctx.clientId);
+                    } else {
+                        handleLeaveRoom(ctx);
+                    }
                 }
             } catch (err) {
                 console.error('Error closing connection', err);

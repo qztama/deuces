@@ -54,7 +54,7 @@ export async function unsubscribe(ctx: WSContext, key: string) {
     const subs = subscriptions.get(key);
 
     if (!subs) {
-        console.error(
+        console.warn(
             'Could not find subs to unsubscribe.',
             getPrintFriendlyWSContext(ctx),
             key

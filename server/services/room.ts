@@ -94,12 +94,10 @@ export async function join(
 
     room.connectedClients.push({
         id: clientId,
-        name: name ?? 'Unknown',
+        name: name ?? `Player ${room.connectedClients.length + 1}`,
         isHost: room.connectedClients.length === 0,
         status: 'connected',
     });
-
-    console.log('Room', room);
 
     await redisClient.set(roomRedisKey, JSON.stringify(room));
 
@@ -116,10 +114,7 @@ export async function leave(roomCode: string, clientId: string) {
     );
 
     if (matchedClientIdx === -1) {
-        throw new HttpError(
-            404,
-            `Could not find connected client ${clientId}.`
-        );
+        console.warn(`Could not find connected client ${clientId}.`);
     }
 
     room.connectedClients.splice(matchedClientIdx, 1);

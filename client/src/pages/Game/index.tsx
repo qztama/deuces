@@ -38,20 +38,15 @@ const GameRoomContent = () => {
     const [connectedClients, setConnectedClients] = useState<ConnectedClient[]>(
         []
     );
-    console.log(isGameStarted);
 
     useEffect(() => {
         if (!socket) return;
 
         const tryJoin = () => {
-            const unsubscribeJoined = subscribe('joined', (payload) => {
-                setClientId(payload.clientId);
-                setConnectedClients(payload.room.connectedClients);
-            });
-
             const unsubscribeRoomUpdated = subscribe(
                 'room-updated',
                 (payload) => {
+                    setClientId(payload.clientId);
                     setConnectedClients(payload.room.connectedClients);
                 }
             );
@@ -63,7 +58,6 @@ const GameRoomContent = () => {
                     socket.send(JSON.stringify({ type: 'leave' }));
                 }
 
-                unsubscribeJoined();
                 unsubscribeRoomUpdated();
             };
         };
@@ -78,25 +72,6 @@ const GameRoomContent = () => {
         }
     }, [socket]);
 
-    useEffect(() => {
-        if (!socket || socket.readyState !== WebSocket.OPEN) return;
-
-        const handleBeforeUnload = () => {
-            console.log('before unload');
-            if (!isGameStarted) {
-                socket.send(JSON.stringify({ type: 'leave' }));
-            }
-        };
-
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-            if (!isGameStarted && socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({ type: 'leave' }));
-            }
-        };
-    }, [socket, isGameStarted]);
-
     if (connectionStatus === 'connecting') {
         return <div>Loading...</div>;
     }
@@ -108,7 +83,11 @@ const GameRoomContent = () => {
     return isGameStarted ? (
         <div>TODO: GAME</div>
     ) : (
-        <Room clientId={clientId} connectedClients={connectedClients} />
+        <Room
+            clientId={clientId}
+            roomCode={roomCode!}
+            connectedClients={connectedClients}
+        />
     );
 };
 

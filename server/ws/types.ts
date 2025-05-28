@@ -4,4 +4,5 @@ export interface WSContext {
     ws: WebSocket;
     clientId: string;
     roomCode?: string;
+    isGameStarted: boolean;
 }
