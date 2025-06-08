@@ -1,4 +1,11 @@
-import { Box, Avatar, Typography, Icon, Tooltip } from '@mui/material';
+import {
+    Box,
+    Avatar,
+    Typography,
+    Icon,
+    Tooltip,
+    useTheme,
+} from '@mui/material';
 
 interface PlayerCardProps {
     name: string;
@@ -13,6 +20,8 @@ export const PlayerCard = ({
     isCurrentPlayer,
     connectionStatus,
 }: PlayerCardProps) => {
+    const theme = useTheme();
+
     const initials = name.split(' ').reduce((acc, cur) => {
         acc += cur.charAt(0).toUpperCase();
         return acc;
@@ -22,7 +31,7 @@ export const PlayerCard = ({
         <Box
             borderRadius="2px"
             width="200px"
-            border="1px solid black"
+            border={`1px solid ${theme.palette.secondary.main}`}
             padding="8px"
             flexDirection="column"
         >

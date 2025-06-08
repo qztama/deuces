@@ -1,7 +1,9 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 
 import { ConnectedClient } from '.';
+import { useGameContext } from './contexts/GameContext';
 import { PlayerCard } from './components/PlayerCard';
+import { useNavigate } from 'react-router';
 
 interface RoomProps {
     clientId: string;
@@ -11,6 +13,7 @@ interface RoomProps {
 
 const Room = (props: RoomProps) => {
     const { clientId, roomCode, connectedClients } = props;
+    const navigate = useNavigate();
 
     const playerCards = connectedClients.map((client) => {
         return (
@@ -23,6 +26,13 @@ const Room = (props: RoomProps) => {
             />
         );
     });
+    const isHost = connectedClients.some(
+        ({ id, isHost }) => id === clientId && isHost
+    );
+
+    const handleLeaveGame = () => {
+        navigate('/');
+    };
 
     return (
         <Box width="100%" height="100%">
@@ -38,8 +48,12 @@ const Room = (props: RoomProps) => {
                     {connectedClients.length} / 3
                 </Typography>
             </Box>
-            <Box border="1px solid black" borderRadius="4px" padding="8px">
-                <Box display="flex">{playerCards}</Box>
+            <Box display="flex" gap={2}>
+                {playerCards}
+            </Box>
+            <Box display="flex" gap="16px" paddingTop="8px">
+                {isHost && <Button>Start Game</Button>}
+                <Button onClick={handleLeaveGame}>Leave Game</Button>
             </Box>
         </Box>
     );

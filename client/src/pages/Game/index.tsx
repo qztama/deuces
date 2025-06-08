@@ -51,7 +51,7 @@ const GameRoomContent = () => {
                 }
             );
 
-            sendMessage(socket, 'join', { roomCode: roomCode!, clientId });
+            sendMessage('join', { roomCode: roomCode!, clientId });
 
             return () => {
                 if (!isGameStarted && socket.readyState === WebSocket.OPEN) {

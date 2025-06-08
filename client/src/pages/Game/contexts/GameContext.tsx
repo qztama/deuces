@@ -35,7 +35,6 @@ interface GameContextType {
             : () => void
     ) => () => void;
     sendMessage: <K extends keyof WSMessageMap>(
-        socket: WebSocket,
         type: K,
         ...[payload]: WSMessageMap[K] extends { payload: infer P }
             ? [payload: P]
@@ -147,7 +146,6 @@ export const GameContextProvider = ({
 
     const sendMessage = useCallback(
         <K extends keyof WSMessageMap>(
-            socket: WebSocket,
             type: K,
             ...[payload]: WSMessageMap[K] extends { payload: infer P }
                 ? [payload: P]
@@ -155,7 +153,10 @@ export const GameContextProvider = ({
         ): void => {
             const message =
                 payload !== undefined ? { type, payload } : { type };
-            socket.send(JSON.stringify(message));
+
+            if (socketRef.current) {
+                socketRef.current.send(JSON.stringify(message));
+            }
         },
         []
     );

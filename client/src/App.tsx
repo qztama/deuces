@@ -1,27 +1,35 @@
-import './App.css'
-import axios from 'axios'
-import { Box, Button, Input } from '@mui/material'
+// App.tsx
+import React, { useMemo, useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router';
+import { ThemeProvider, CssBaseline, Button, Box } from '@mui/material';
 
-function App() {
-  const handleCreateGame = async () => {
-    const response = await axios.get("http://localhost:3000/create");
-    console.log(response);
-  }
+import getTheme from './theme';
+import { NavBar } from './components/NavBar';
+import Home from './pages/Home';
+import GameRoom from './pages/Game';
 
-  return (
-    <>
-      <h1>Deuces</h1>
-      <Box>
-        <Button onClick={handleCreateGame}>Create Game</Button>
+const App: React.FC = () => {
+    const [mode, setMode] = useState<'light' | 'dark'>('dark');
+    const theme = useMemo(() => getTheme(mode), [mode]);
 
-        <Box display="flex">
-          <Button>Join Game</Button>
-          <Input />
-        </Box>
-        
-      </Box>
-    </>
-  )
-}
+    const toggleTheme = () => {
+        setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
+    };
 
-export default App
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <BrowserRouter>
+                <Box sx={{ p: 3 }}>
+                    <NavBar mode={mode} toggleTheme={toggleTheme} />
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/room/:roomCode" element={<GameRoom />} />
+                    </Routes>
+                </Box>
+            </BrowserRouter>
+        </ThemeProvider>
+    );
+};
+
+export default App;
