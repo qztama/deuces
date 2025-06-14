@@ -70,7 +70,7 @@ export async function join(
     clientId: string,
     name?: string
 ): Promise<Room> {
-    const redisClient = await redisService.getClient();
+    const redisClient = redisService.getClient();
     const roomRedisKey = getRoomRedisKey(roomCode);
 
     const room: Room = await getRoomInfo(redisClient, roomRedisKey);

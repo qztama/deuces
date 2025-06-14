@@ -20,7 +20,7 @@ const App: React.FC = () => {
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <BrowserRouter>
-                <Box sx={{ p: 3 }}>
+                <Box>
                     <NavBar mode={mode} toggleTheme={toggleTheme} />
                     <Routes>
                         <Route path="/" element={<Home />} />
