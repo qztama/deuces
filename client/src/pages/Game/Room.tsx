@@ -1,9 +1,9 @@
 import { Box, Button, Typography } from '@mui/material';
 
 import { ConnectedClient } from '.';
-import { useGameContext } from './contexts/GameContext';
 import { PlayerCard } from './components/PlayerCard';
 import { useNavigate } from 'react-router';
+import { useWSContext } from './contexts/WSContext';
 
 interface RoomProps {
     clientId: string;
@@ -14,6 +14,7 @@ interface RoomProps {
 const Room = (props: RoomProps) => {
     const { clientId, roomCode, connectedClients } = props;
     const navigate = useNavigate();
+    const { sendMessage } = useWSContext();
 
     const playerCards = connectedClients.map((client) => {
         return (
@@ -30,9 +31,8 @@ const Room = (props: RoomProps) => {
         ({ id, isHost }) => id === clientId && isHost
     );
 
-    const handleLeaveGame = () => {
-        navigate('/');
-    };
+    const handleStartGame = () => sendMessage('start-game');
+    const handleLeaveGame = () => navigate('/');
 
     return (
         <Box width="100%" height="100%">
@@ -52,7 +52,9 @@ const Room = (props: RoomProps) => {
                 {playerCards}
             </Box>
             <Box display="flex" gap="16px" paddingTop="8px">
-                {isHost && <Button>Start Game</Button>}
+                {isHost && (
+                    <Button onClick={handleStartGame}>Start Game</Button>
+                )}
                 <Button onClick={handleLeaveGame}>Leave Game</Button>
             </Box>
         </Box>

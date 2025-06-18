@@ -1,8 +1,8 @@
-import * as redisService from './redis';
+import { RedisClientType } from 'redis';
 
 import { HttpError } from '../utils/error';
-import { RedisClientType } from 'redis';
 import { WSContext } from '../ws/types';
+import * as redisService from './redis';
 
 export interface Room {
     code: string;
@@ -27,14 +27,11 @@ function generateRoomCode() {
     return code;
 }
 
-function getRoomRedisKey(roomCode: string) {
+export function getRoomRedisKey(roomCode: string) {
     return `room:${roomCode}`;
 }
 
-async function getRoomInfo(
-    redisClient: RedisClientType,
-    roomRedisKey: string
-): Promise<Room> {
+export async function getRoomInfo(redisClient: RedisClientType, roomRedisKey: string): Promise<Room> {
     const roomData = await redisClient.get(roomRedisKey);
 
     if (!roomData) {
@@ -65,18 +62,12 @@ export async function create() {
     return roomCode;
 }
 
-export async function join(
-    roomCode: string,
-    clientId: string,
-    name?: string
-): Promise<Room> {
+export async function join(roomCode: string, clientId: string, name?: string): Promise<Room> {
     const redisClient = redisService.getClient();
     const roomRedisKey = getRoomRedisKey(roomCode);
 
     const room: Room = await getRoomInfo(redisClient, roomRedisKey);
-    const matchedClientIdx = room.connectedClients.findIndex(
-        (c) => c.id === clientId
-    );
+    const matchedClientIdx = room.connectedClients.findIndex((c) => c.id === clientId);
 
     if (matchedClientIdx !== -1) {
         if (room.connectedClients[matchedClientIdx].status === 'connected') {
@@ -109,9 +100,7 @@ export async function leave(roomCode: string, clientId: string) {
     const roomRedisKey = getRoomRedisKey(roomCode);
     const room = await getRoomInfo(redisClient, roomRedisKey);
 
-    const matchedClientIdx = room.connectedClients.findIndex(
-        (c) => c.id === clientId
-    );
+    const matchedClientIdx = room.connectedClients.findIndex((c) => c.id === clientId);
 
     if (matchedClientIdx === -1) {
         console.warn(`Could not find connected client ${clientId}.`);
@@ -126,15 +115,10 @@ export async function disconnect(roomCode: string, clientId: string) {
     const roomRedisKey = getRoomRedisKey(roomCode);
     const room = await getRoomInfo(redisClient, roomRedisKey);
 
-    const matchedClientIdx = room.connectedClients.findIndex(
-        (c) => c.id === clientId
-    );
+    const matchedClientIdx = room.connectedClients.findIndex((c) => c.id === clientId);
 
     if (matchedClientIdx === -1) {
-        throw new HttpError(
-            404,
-            `Could not find connected client ${clientId}.`
-        );
+        throw new HttpError(404, `Could not find connected client ${clientId}.`);
     }
 
     room.connectedClients[matchedClientIdx].status = 'disconnected';
@@ -143,11 +127,7 @@ export async function disconnect(roomCode: string, clientId: string) {
     console.log('disconnected');
 }
 
-export function subscribeToRoomInfo(
-    ctx: WSContext,
-    roomCode: string,
-    cb: (roomInfo: Room) => void
-) {
+export function subscribeToRoomInfo(ctx: WSContext, roomCode: string, cb: (roomInfo: Room) => void) {
     const redisClient = redisService.getClient();
     const roomRedisKey = getRoomRedisKey(roomCode);
     redisService.subscribe(ctx, roomRedisKey, async () => {

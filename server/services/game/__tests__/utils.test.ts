@@ -1,6 +1,6 @@
-import { generateOrderedDeck, generateShuffledDeck, dealCards } from '../utils'; // adjust path as needed
+import { generateOrderedDeck, generateShuffledDeck, dealCards, determineTurnOrder } from '../utils'; // adjust path as needed
 import { RANKS, SUITS } from '../constants';
-import { Card } from '../types';
+import { Card, Player } from '../types';
 
 describe('generateShuffledDeck', () => {
     it('should return 52 cards', () => {
@@ -69,5 +69,31 @@ describe('passCards', () => {
         const allCards = hands.flat().concat(leftOver);
         const uniqueCards = new Set(allCards);
         expect(uniqueCards.size).toBe(deck.length);
+    });
+});
+
+describe('determineTurnOrder', () => {
+    it('should start with the player who has 3D and continue in order', () => {
+        const players: Player[] = [
+            {
+                id: 'player1',
+                hand: ['5S', '6H'],
+                hasPassed: false,
+            },
+            {
+                id: 'player2',
+                hand: ['3D', '9C'],
+                hasPassed: false,
+            },
+            {
+                id: 'player3',
+                hand: ['7H', '8S'],
+                hasPassed: false,
+            },
+        ];
+
+        const turnOrder = determineTurnOrder(players);
+
+        expect(turnOrder).toEqual(['player2', 'player3', 'player1']);
     });
 });

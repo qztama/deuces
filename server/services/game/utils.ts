@@ -1,6 +1,34 @@
-import { Card } from './types';
+import { Card, GameState, ObfuscatedPlayer, PlayerGameState, Player } from './types';
 import { RANKS, SUITS } from './constants';
 
+// Subscription
+export function getPlayerGameState(clientId: string, gameState: GameState): PlayerGameState {
+    const curPlayer = gameState.players.find((player) => player.id === clientId);
+
+    if (!curPlayer) {
+        throw new Error(`Client ${clientId} not found in game state.`);
+    }
+
+    return {
+        id: clientId,
+        hand: curPlayer.hand,
+        opponents: gameState.players.reduce((acc, curPlayer) => {
+            if (curPlayer.id !== clientId) {
+                acc.push({
+                    id: curPlayer.id,
+                    cardsLeft: curPlayer.hand.length,
+                });
+            }
+            return acc;
+        }, [] as ObfuscatedPlayer[]),
+        lastPlayed: gameState.lastPlayed,
+        turnOrder: gameState.turnOrder,
+        turnNumber: gameState.turnNumber,
+        history: gameState.history,
+    };
+}
+
+// Game Setup
 export function generateOrderedDeck(): Card[] {
     return RANKS.flatMap((rank) => SUITS.map((suit) => `${rank}${suit}` as Card));
 }
@@ -16,7 +44,7 @@ export function generateShuffledDeck(): Card[] {
     return newDeck;
 }
 
-export function dealCards(deck: Card[], numOfPlayers: 2 | 3 | 4 = 3) {
+export function dealCards(deck: Card[], numOfPlayers: 3 | 4 = 3) {
     const hands = Array.from({ length: numOfPlayers }, () => [] as Card[]);
     const cardsToRoundRobin = deck.length - (deck.length % numOfPlayers);
 
@@ -29,4 +57,15 @@ export function dealCards(deck: Card[], numOfPlayers: 2 | 3 | 4 = 3) {
         hands,
         leftOver: deck.slice(deck.length - (deck.length % numOfPlayers)),
     };
+}
+
+export function determineTurnOrder(players: Player[]): string[] {
+    const firstPlayerIdx = players.findIndex(({ hand }) => hand.some((card) => card === '3D'));
+    const turnOrder = [];
+
+    for (let i = firstPlayerIdx; i < firstPlayerIdx + players.length; i++) {
+        turnOrder.push(players[i % players.length].id);
+    }
+
+    return turnOrder;
 }

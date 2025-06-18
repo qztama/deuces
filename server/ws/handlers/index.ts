@@ -1,9 +1,6 @@
-import {
-    WSMessage,
-    WSMessageBase,
-    WSMessageJoin,
-} from '../../../shared/wsMessages';
+import { WSMessage, WSMessageJoin } from '../../../shared/wsMessages';
 import { WSContext } from '../types';
+import { handleStartGame } from './gameHandlers';
 
 import { handleJoinRoom, handleLeaveRoom } from './roomHandlers';
 
@@ -21,6 +18,11 @@ export async function handleMessage(ctx: WSContext, data: string) {
             }
             case 'leave': {
                 handleLeaveRoom(ctx);
+                break;
+            }
+            case 'start-game': {
+                handleStartGame(ctx);
+                break;
             }
         }
     } catch (err) {

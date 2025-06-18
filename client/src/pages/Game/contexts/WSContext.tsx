@@ -23,7 +23,7 @@ type SubscriptionMap = Map<
     >
 >;
 
-interface GameContextType {
+interface WSContextType {
     socket: WebSocket | null;
     connectionStatus: 'connecting' | 'open' | 'closed' | 'error';
     subscribe: <K extends keyof WSMessageMap>(
@@ -42,9 +42,9 @@ interface GameContextType {
     ) => void;
 }
 
-const GameContext = createContext<GameContextType | undefined>(undefined);
+const WSContext = createContext<WSContextType | undefined>(undefined);
 
-export const GameContextProvider = ({
+export const WSContextProvider = ({
     children,
 }: {
     children: React.ReactNode;
@@ -53,7 +53,7 @@ export const GameContextProvider = ({
     const hasConnectedRef = useRef(false);
     const subscriptionsRef = useRef<SubscriptionMap>(new Map());
     const [connectionStatus, setConnectionStatus] =
-        useState<GameContextType['connectionStatus']>('connecting');
+        useState<WSContextType['connectionStatus']>('connecting');
 
     useEffect(() => {
         if (socketRef.current) {
@@ -162,7 +162,7 @@ export const GameContextProvider = ({
     );
 
     return (
-        <GameContext.Provider
+        <WSContext.Provider
             value={{
                 socket: socketRef.current,
                 connectionStatus,
@@ -171,12 +171,12 @@ export const GameContextProvider = ({
             }}
         >
             {children}
-        </GameContext.Provider>
+        </WSContext.Provider>
     );
 };
 
-export const useGameContext = () => {
-    const ctx = useContext(GameContext);
+export const useWSContext = () => {
+    const ctx = useContext(WSContext);
     if (!ctx)
         throw new Error('useWebSocketContext must be used within a provider');
     return ctx;

@@ -16,7 +16,7 @@ export interface Player {
     id: string;
     hand: Card[];
     hasPassed: boolean;
-    middleCard?: Card;
+    middleCard?: Card[];
 }
 
 export interface GameEvent {
@@ -28,7 +28,7 @@ export interface GameEvent {
 
 export interface GameState {
     players: Player[];
-    lastValidHand: {
+    lastPlayed: {
         playerId: string;
         hand: Card[];
         type: HandType;
@@ -37,4 +37,16 @@ export interface GameState {
     turnNumber: Number;
     history: GameEvent[];
     winners: string[];
+}
+
+export interface ObfuscatedPlayer {
+    id: string;
+    name?: string;
+    cardsLeft: number;
+}
+
+export interface PlayerGameState extends Pick<GameState, 'lastPlayed' | 'turnNumber' | 'turnOrder' | 'history'> {
+    id: string;
+    hand: Card[];
+    opponents: ObfuscatedPlayer[];
 }

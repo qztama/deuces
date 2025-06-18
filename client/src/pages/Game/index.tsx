@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 
-import { GameContextProvider, useGameContext } from './contexts/GameContext';
+import { WSContextProvider, useWSContext } from './contexts/WSContext';
 import Room from './Room';
+import { WSMessageGameUpdated } from '../../../../shared/wsMessages';
 
 export interface ConnectedClient {
     id: string;
@@ -17,18 +18,18 @@ function getRoomClientLSK(roomCode: string) {
 
 const GameRoom = () => {
     return (
-        <GameContextProvider>
+        <WSContextProvider>
             <GameRoomContent />
-        </GameContextProvider>
+        </WSContextProvider>
     );
 };
 
 const GameRoomContent = () => {
-    const { socket, connectionStatus, subscribe, sendMessage } =
-        useGameContext();
+    const { socket, connectionStatus, subscribe, sendMessage } = useWSContext();
     const { roomCode } = useParams<{ roomCode: string }>();
     const [isGameStarted, setIsGameStarted] = useState(false);
 
+    // Room Info
     const [clientId, setClientId] = useState(() => {
         if (!roomCode) {
             return '';
@@ -38,6 +39,10 @@ const GameRoomContent = () => {
     const [connectedClients, setConnectedClients] = useState<ConnectedClient[]>(
         []
     );
+
+    // Game Info
+    const [gameState, setGameState] =
+        useState<WSMessageGameUpdated['payload']['gameState']>();
 
     useEffect(() => {
         if (!socket) return;
@@ -51,6 +56,17 @@ const GameRoomContent = () => {
                 }
             );
 
+            const unsubscribeGameUpdated = subscribe(
+                'game-updated',
+                (payload) => {
+                    if (payload.gameState.turnNumber === 0) {
+                        setIsGameStarted(true);
+                    }
+
+                    setGameState(payload.gameState);
+                }
+            );
+
             sendMessage('join', { roomCode: roomCode!, clientId });
 
             return () => {
@@ -58,6 +74,7 @@ const GameRoomContent = () => {
                     socket.send(JSON.stringify({ type: 'leave' }));
                 }
 
+                unsubscribeGameUpdated();
                 unsubscribeRoomUpdated();
             };
         };
@@ -81,7 +98,9 @@ const GameRoomContent = () => {
     }
 
     return isGameStarted ? (
-        <div>TODO: GAME</div>
+        <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+            {JSON.stringify(gameState, null, 2)}
+        </pre>
     ) : (
         <Room
             clientId={clientId}

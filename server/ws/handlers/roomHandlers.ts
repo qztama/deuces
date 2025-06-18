@@ -5,7 +5,10 @@ import {
     WSMessageJoined,
     WSMessageLeave,
     WSMessageRoomUpdated,
+    WSMessageGameUpdated,
 } from '../../../shared/wsMessages';
+import { subscribeToGame, unsubscribeToGame } from '../../services/game';
+import { PlayerGameState } from '../../services/game/types';
 
 import {
     Room,
@@ -17,10 +20,7 @@ import {
 import { WSContext } from '../types';
 import { getPrintFriendlyWSContext } from '../utils';
 
-export async function handleJoinRoom(
-    ctx: WSContext,
-    joinMessage: WSMessageJoin
-) {
+export async function handleJoinRoom(ctx: WSContext, joinMessage: WSMessageJoin) {
     const { ws } = ctx;
     const { payload } = joinMessage;
 
@@ -40,18 +40,26 @@ export async function handleJoinRoom(
         ws.send(JSON.stringify(response));
     });
 
+    subscribeToGame(ctx, payload.roomCode, (playerGameState: PlayerGameState) => {
+        const response: WSMessageGameUpdated = {
+            type: 'game-updated',
+            payload: {
+                gameState: playerGameState,
+            },
+        };
+        ws.send(JSON.stringify(response));
+    });
+
     await joinRoom(payload.roomCode, ctx.clientId, payload.name);
 }
 
 export function handleLeaveRoom(ctx: WSContext) {
     if (!ctx.roomCode) {
-        console.error(
-            'No roomCode provided for leaving room.',
-            getPrintFriendlyWSContext(ctx)
-        );
+        console.error('No roomCode provided for leaving room.', getPrintFriendlyWSContext(ctx));
         return;
     }
 
+    unsubscribeToGame(ctx, ctx.roomCode);
     unsubscribeToRoomInfo(ctx, ctx.roomCode);
 
     leaveRoom(ctx.roomCode, ctx.clientId);
