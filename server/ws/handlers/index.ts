@@ -1,6 +1,6 @@
-import { WSMessage, WSMessageJoin } from '../../../shared/wsMessages';
+import { WSMessage, WSMessageJoin, WSMessagePlayMove } from '../../../shared/wsMessages';
 import { WSContext } from '../types';
-import { handleStartGame } from './gameHandlers';
+import { handlePlayMove, handleStartGame } from './gameHandlers';
 
 import { handleJoinRoom, handleLeaveRoom } from './roomHandlers';
 
@@ -21,7 +21,12 @@ export async function handleMessage(ctx: WSContext, data: string) {
                 break;
             }
             case 'start-game': {
-                handleStartGame(ctx);
+                await handleStartGame(ctx);
+                break;
+            }
+            case 'play-move': {
+                const playMoveMessage = message as WSMessagePlayMove;
+                handlePlayMove(ctx, playMoveMessage.payload.move);
                 break;
             }
         }

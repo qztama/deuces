@@ -28,13 +28,12 @@ export interface GameEvent {
 
 export interface GameState {
     players: Player[];
-    lastPlayed: {
+    inPlay: {
         playerId: string;
         hand: Card[];
         type: HandType;
     } | null;
-    turnOrder: string[];
-    turnNumber: Number;
+    turnNumber: number;
     history: GameEvent[];
     winners: string[];
 }
@@ -45,7 +44,7 @@ export interface ObfuscatedPlayer {
     cardsLeft: number;
 }
 
-export interface PlayerGameState extends Pick<GameState, 'lastPlayed' | 'turnNumber' | 'turnOrder' | 'history'> {
+export interface PlayerGameState extends Pick<GameState, 'inPlay' | 'turnNumber' | 'history'> {
     id: string;
     hand: Card[];
     opponents: ObfuscatedPlayer[];

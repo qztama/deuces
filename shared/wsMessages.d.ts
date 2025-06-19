@@ -6,7 +6,7 @@ export interface WSMessageBase {
   payload?: Record<string, any>;
 }
 
-// Server Side
+// Room Messages
 export interface WSMessageConnected extends WSMessageBase {
   type: "connected";
 }
@@ -20,8 +20,8 @@ export interface WSMessageJoin extends WSMessageBase {
   };
 }
 
-export interface WSMessageJoined extends WSMessageBase {
-  type: "joined";
+export interface WSMessageRoomUpdated extends WSMessageBase {
+  type: "room-updated";
   payload: {
     clientId: string;
     room: Room;
@@ -32,17 +32,9 @@ export interface WSMessageLeave {
   type: "leave";
 }
 
+// Game Messages
 export interface WSMessageStartGame {
   type: "start-game";
-}
-
-// Client Side
-export interface WSMessageRoomUpdated extends WSMessageBase {
-  type: "room-updated";
-  payload: {
-    clientId: string;
-    room: Room;
-  };
 }
 
 export interface WSMessageGameUpdated extends WSMessageBase {
@@ -52,14 +44,21 @@ export interface WSMessageGameUpdated extends WSMessageBase {
   };
 }
 
+export interface WSMessagePlayMove extends WSMessageBase {
+  type: "play-move";
+  payload: {
+    move: Card[];
+  };
+}
+
 export type WSMessage =
   | WSMessageConnected
   | WSMessageJoin
-  | WSMessageJoined
+  | WSMessageRoomUpdated
   | WSMessageLeave
   | WSMessageStartGame
-  | WSMessageRoomUpdated
-  | WSMessageGameUpdated;
+  | WSMessageGameUpdated
+  | WSMessagePlayMove;
 
 type MessageMap<T extends { type: string }> = {
   [M in T as M["type"]]: M;

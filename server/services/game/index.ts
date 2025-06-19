@@ -3,15 +3,22 @@ import { HttpError } from '../../utils/error';
 
 import * as redisService from '../redis';
 import { WSContext } from '../../ws/types';
-import { GameState, Player, PlayerGameState } from './types';
-import { dealCards, determineTurnOrder, generateShuffledDeck, getPlayerGameState } from './utils';
+import { Card, GameEvent, GameState, HandType, Player, PlayerGameState } from './types';
+import {
+    dealCards,
+    determineTurnOrder,
+    generateShuffledDeck,
+    getHandScore,
+    getHandType,
+    getPlayerGameState,
+} from './utils';
 
 // Game Connection
 export function getGameRedisKey(roomCode: string) {
     return `game:${roomCode}`;
 }
 
-async function getGameState(redisClient: RedisClientType, gameRedisKey: string): Promise<GameState> {
+export async function getGameState(redisClient: RedisClientType, gameRedisKey: string): Promise<GameState> {
     const gameStateData = await redisClient.get(gameRedisKey);
 
     if (!gameStateData) {
@@ -19,6 +26,12 @@ async function getGameState(redisClient: RedisClientType, gameRedisKey: string):
     }
 
     return JSON.parse(gameStateData) as GameState;
+}
+
+export async function getGameStateByRoomCode(roomCode: string) {
+    const redisClient = redisService.getClient();
+    const gameRedisKey = getGameRedisKey(roomCode);
+    return await getGameState(redisClient, gameRedisKey);
 }
 
 export function subscribeToGame(ctx: WSContext, roomCode: string, cb: (playerGameState: PlayerGameState) => void) {
@@ -56,20 +69,149 @@ export function initGame(clients: { id: string; name: string }[]): GameState {
             middleCard: hasDiamondThree ? leftOver : undefined,
         } as Player;
     });
-    const turnOrder = determineTurnOrder(players);
+    const orderedPlayers = determineTurnOrder(players);
 
     return {
-        players,
-        lastPlayed: null,
-        turnOrder,
+        players: orderedPlayers,
+        inPlay: null,
         turnNumber: 0,
         history: [
             {
-                playerId: turnOrder[0],
+                playerId: orderedPlayers[0].id,
                 action: 'received',
                 cards: leftOver,
             },
         ],
         winners: [],
+    };
+}
+
+// empty array move = pass
+export async function validateMove(gameState: GameState, clientId: string, move: Card[]): Promise<boolean> {
+    const { players, turnNumber, inPlay } = gameState;
+
+    // check player turn
+    if (clientId !== players[turnNumber % players.length].id) {
+        throw new Error(`Error in move validation: it is not ${clientId}'s turn`);
+    }
+
+    // check if player has those cards
+    const player = players.find(({ id }) => id === clientId);
+    if (!player) {
+        throw new Error(`Error in move validation: ${clientId} is not a player in the game`);
+    }
+
+    const hasCardsForMove = move.every((card) => player.hand.includes(card));
+    if (!hasCardsForMove) {
+        throw new Error(`Error in move validation: ${clientId} does not have the cards for this move`);
+    }
+
+    // check for move validity
+    // if everyone else who is still playing has passed, this can be anything
+    // otherwise: verify hand type (is valid and matches with hand in play) and bigger
+    const isNewRound = inPlay === null;
+    const isPassMove = move.length === 0;
+
+    if (isNewRound && isPassMove) {
+        throw new Error(`Error in move validation: ${clientId} cannot pass at a start of a new round`);
+    }
+
+    const moveType = getHandType(move);
+    if (!moveType) {
+        throw new Error(`Error in move validation: could not determine hand type for ${JSON.stringify(move)}`);
+    }
+
+    if (!isNewRound) {
+        if (inPlay.hand.length !== move.length) {
+            throw new Error(
+                `Error in move validation: ${JSON.stringify(move)} cannot be played on top of ${JSON.stringify(
+                    inPlay.hand
+                )}`
+            );
+        }
+
+        const inPlayScore = getHandScore(inPlay.type, inPlay.hand);
+        const moveScore = getHandScore(moveType, move);
+
+        if (moveScore <= inPlayScore) {
+            throw new Error(
+                `Error in move validation: ${JSON.stringify(move)} must be bigger than ${JSON.stringify(inPlay.hand)}`
+            );
+        }
+    }
+
+    return true;
+}
+
+function getNextTurnNumber(curTurnNumber: number, nextPlayers: Player[]): number {
+    const totalPlayers = nextPlayers.length;
+    let nextTurnNumber = curTurnNumber + 1;
+
+    for (let i = 0; i < totalPlayers; i++) {
+        const playerIndex = nextTurnNumber % totalPlayers;
+        const player = nextPlayers[playerIndex];
+
+        if (!player.hasPassed && player.hand.length > 0) {
+            return nextTurnNumber;
+        }
+
+        nextTurnNumber++;
+    }
+
+    return -1; // TODO: revisit what to do with this when game ends
+}
+
+export function getNextGameState(curGameState: GameState, move: Card[]): GameState {
+    const { players, turnNumber, inPlay, history, winners } = curGameState;
+    const curPlayer = players[turnNumber % players.length];
+
+    const moveType = getHandType(move)!;
+    const isPassMove = move.length === 0;
+    const isWinningPlay = curPlayer.hand.length === move.length;
+
+    const nextPlayers = players.map((p) => {
+        const nextPlayerState = Object.assign({}, p);
+
+        if (p.id === curPlayer.id) {
+            if (isPassMove) {
+                nextPlayerState.hasPassed = true;
+            } else {
+                nextPlayerState.hand = p.hand.filter((c) => !move.includes(c));
+            }
+        }
+
+        return nextPlayerState;
+    });
+    const nextTurnNumber = getNextTurnNumber(turnNumber, nextPlayers);
+
+    let nextInPlay: GameState['inPlay'] = isPassMove
+        ? Object.assign({}, inPlay)
+        : {
+              playerId: curPlayer.id,
+              hand: move,
+              type: moveType,
+          };
+    if (players[nextTurnNumber].id === inPlay?.playerId) {
+        // everyone else passed so we start a new round
+        nextInPlay = null;
+        nextPlayers.forEach((p) => {
+            p.hasPassed = false;
+        });
+    }
+
+    return {
+        players: nextPlayers,
+        inPlay: nextInPlay,
+        turnNumber: nextTurnNumber,
+        history: [
+            ...history,
+            {
+                playerId: players[turnNumber].id,
+                action: isPassMove ? 'passed' : 'played',
+                cards: isPassMove ? undefined : move,
+                type: isPassMove ? undefined : moveType,
+            },
+        ],
+        winners: [...winners, ...(isWinningPlay ? [curPlayer.id] : [])],
     };
 }

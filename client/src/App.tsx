@@ -1,7 +1,7 @@
 // App.tsx
 import React, { useMemo, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router';
-import { ThemeProvider, CssBaseline, Button, Box } from '@mui/material';
+import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 
 import getTheme from './theme';
 import { NavBar } from './components/NavBar';
