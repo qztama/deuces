@@ -1,5 +1,5 @@
 import { Room } from "../server/services/room";
-import { PlayerGameState } from "../server/services/game/types";
+import { PlayerGameState, Card } from "../server/services/game/types";
 
 export interface WSMessageBase {
   type: "connected" | "join" | "joined" | "room-updated";

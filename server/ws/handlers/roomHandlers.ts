@@ -2,7 +2,6 @@ import {
     WSMessageBase,
     WSMessageConnected,
     WSMessageJoin,
-    WSMessageJoined,
     WSMessageLeave,
     WSMessageRoomUpdated,
     WSMessageGameUpdated,

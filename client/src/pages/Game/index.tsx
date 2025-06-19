@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
+import { TextField } from '@mui/material';
 
 import { WSContextProvider, useWSContext } from './contexts/WSContext';
 import Room from './Room';
 import { WSMessageGameUpdated } from '../../../../shared/wsMessages';
+import { GameView } from './GameView';
 
 export interface ConnectedClient {
     id: string;
@@ -97,10 +99,13 @@ const GameRoomContent = () => {
         return <div>There was an error.</div>;
     }
 
-    return isGameStarted ? (
-        <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-            {JSON.stringify(gameState, null, 2)}
-        </pre>
+    return isGameStarted && gameState ? (
+        <GameView
+            gameState={gameState}
+            handleMove={(move) => {
+                sendMessage('play-move', { move });
+            }}
+        />
     ) : (
         <Room
             clientId={clientId}
