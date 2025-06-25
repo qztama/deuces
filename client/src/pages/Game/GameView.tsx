@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Box, Button, TextField } from '@mui/material';
 
-import {
-    WSMessageGameUpdated,
-    WSMessagePlayMove,
-} from '../../../../shared/wsMessages';
-import { PlayingCard } from './components/PlayingCard';
+import { WSMessageGameUpdated, WSMessagePlayMove } from '@shared/wsMessages';
 import { Rank, Suit } from '@shared/game';
+import { PlayingCard } from './components/PlayingCard/PlayingCard';
+import { Hand } from './components/Hand';
+import { useGameContext } from './contexts/GameContext';
+import { PLAYING_CARD_WIDTH } from './constants';
 
 interface GameViewProps {
     gameState: WSMessageGameUpdated['payload']['gameState'];
@@ -15,6 +15,7 @@ interface GameViewProps {
 
 export const GameView = ({ gameState, handleMove }: GameViewProps) => {
     const [move, setMove] = useState<WSMessagePlayMove['payload']['move']>();
+    const { players } = useGameContext();
     const cards = [];
 
     for (let s of ['D', 'C', 'H', 'S']) {
@@ -43,6 +44,12 @@ export const GameView = ({ gameState, handleMove }: GameViewProps) => {
         }
     }
 
+    const testPlayers = players.map((p) => (
+        <Box key={`player-${p.id}`}>
+            {p.id}: {p.cardsLeft} cards
+        </Box>
+    ));
+
     return (
         <>
             {/* <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
@@ -59,7 +66,20 @@ export const GameView = ({ gameState, handleMove }: GameViewProps) => {
                     setMove(move);
                 }}
             /> */}
-            <Box>{cards}</Box>
+            {/* <Box>{cards}</Box> */}
+            {testPlayers}
+            <Box
+                position="fixed"
+                sx={{
+                    bottom: `-${PLAYING_CARD_WIDTH / 2}px`,
+                    width: '100%',
+                }}
+            >
+                <Hand />
+            </Box>
+            {/* <Box display={'flex'} justifyContent={'end'}>
+                <DealingHandDemo />
+            </Box> */}
             {/* <Button disabled={!move} onClick={() => handleMove(move!)}>
                 Play
             </Button> */}

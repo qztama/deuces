@@ -7,6 +7,7 @@ import KingCrown from '../../../../assets/icons/king-crown.svg?react';
 export const WIDTH_TO_HEIGHT_RATIO = 5 / 7;
 export const FACE_ICON_TO_WIDTH_RATIO = 2 / 5;
 export const LABEL_TO_WIDTH_RATIO = 3 / 20;
+export const PIP_SIZE_TO_WIDTH_RATIO = 9 / 40;
 
 export const PIP_POSITIONS: Record<
     Exclude<Rank, 'J' | 'Q' | 'K'>,

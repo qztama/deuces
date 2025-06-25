@@ -5,6 +5,7 @@ import { WSContextProvider, useWSContext } from './contexts/WSContext';
 import Room from './Room';
 import { WSMessageGameUpdated } from '../../../../shared/wsMessages';
 import { GameView } from './GameView';
+import { GameContextProvider } from './contexts/GameContext';
 
 export interface ConnectedClient {
     id: string;
@@ -67,14 +68,9 @@ const GameRoomContent = () => {
                 'AH',
             ],
             opponents: [
-                {
-                    id: '01979450-18aa-733d-b50a-7e28c6f8e080',
-                    cardsLeft: 18,
-                },
-                {
-                    id: '0197944f-6f1f-7242-8a5d-b0dbc38335f6',
-                    cardsLeft: 17,
-                },
+                { id: '01979450-18aa-733d-b50a-7e28c6f8e080', cardsLeft: 18 },
+                { id: '0197944f-6f1f-7242-8a5d-b0dbc38335f6', cardsLeft: 17 },
+                { id: '0197944f-1401-7597-ab1b-c057fa058878', cardsLeft: 17 },
             ],
             inPlay: null,
             turnNumber: 0,
@@ -142,12 +138,14 @@ const GameRoomContent = () => {
     }
 
     return isGameStarted && gameState ? (
-        <GameView
-            gameState={gameState}
-            handleMove={(move) => {
-                sendMessage('play-move', { move });
-            }}
-        />
+        <GameContextProvider>
+            <GameView
+                gameState={gameState}
+                handleMove={(move) => {
+                    sendMessage('play-move', { move });
+                }}
+            />
+        </GameContextProvider>
     ) : (
         <Room
             clientId={clientId}
