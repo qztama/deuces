@@ -20,12 +20,17 @@ const App: React.FC = () => {
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <BrowserRouter>
-                <Box>
+                <Box display="flex" flexDirection="column" height="100vh">
                     <NavBar mode={mode} toggleTheme={toggleTheme} />
-                    <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/room/:roomCode" element={<GameRoom />} />
-                    </Routes>
+                    <Box flexGrow="1">
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route
+                                path="/room/:roomCode"
+                                element={<GameRoom />}
+                            />
+                        </Routes>
+                    </Box>
                 </Box>
             </BrowserRouter>
         </ThemeProvider>

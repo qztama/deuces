@@ -63,15 +63,12 @@ export const GameContextProvider = ({
 
             await nextFrame(); // ✅ wait one frame to avoid batching
 
-            console.log(initialPlayers, tempPlayers);
-
             while (
                 isMounted &&
                 initialPlayers.some(
                     (ip, idx) => tempPlayers[idx].cardsLeft < ip.cardsLeft
                 )
             ) {
-                console.log('inside while');
                 for (let i = 0; i < tempPlayers.length; i++) {
                     const curPlayer = tempPlayers[i];
                     console.log(curPlayer);
@@ -80,11 +77,6 @@ export const GameContextProvider = ({
                         if (curPlayer.id === clientId) {
                             const cardToDealIdx = curPlayer.cardsLeft;
                             setHand((prev) => {
-                                console.log(
-                                    'setting hand',
-                                    curPlayer.cardsLeft,
-                                    [...prev, initialHand[cardToDealIdx]]
-                                );
                                 return [...prev, initialHand[cardToDealIdx]];
                             });
                         }

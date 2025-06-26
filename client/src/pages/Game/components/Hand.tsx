@@ -49,7 +49,7 @@ export const Hand = () => {
                 position: 'relative',
                 height: '180px',
                 width: `${totalWidth}px`,
-                left: `calc(50% - ${centerOffset}px`,
+                // left: `calc(50% - ${centerOffset}px`,
             }}
         >
             <div

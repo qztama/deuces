@@ -1,12 +1,17 @@
 import { useState } from 'react';
-import { Box, Button, TextField } from '@mui/material';
+import { Box, Button, TextField, Typography, useTheme } from '@mui/material';
 
 import { WSMessageGameUpdated, WSMessagePlayMove } from '@shared/wsMessages';
+import { Card } from '@shared/game';
 import { Rank, Suit } from '@shared/game';
 import { PlayingCard } from './components/PlayingCard/PlayingCard';
 import { Hand } from './components/Hand';
 import { useGameContext } from './contexts/GameContext';
 import { PLAYING_CARD_WIDTH } from './constants';
+import { PlayerInfoDisplay } from './components/PlayerInfoDisplay';
+import { useWSContext } from './contexts/WSContext';
+import { WIDTH_TO_HEIGHT_RATIO } from './components/PlayingCard/constants';
+import { PlaceholderCard } from './components/PlayingCard/PlaceholderCard';
 
 interface GameViewProps {
     gameState: WSMessageGameUpdated['payload']['gameState'];
@@ -14,75 +19,126 @@ interface GameViewProps {
 }
 
 export const GameView = ({ gameState, handleMove }: GameViewProps) => {
-    const [move, setMove] = useState<WSMessagePlayMove['payload']['move']>();
-    const { players } = useGameContext();
-    const cards = [];
+    const { palette } = useTheme();
+    const { clientId } = useWSContext();
+    const { players, turnNumber } = useGameContext();
+    const inPlay: Card[] = ['AD', 'AC', 'AH', 'AS'];
 
-    for (let s of ['D', 'C', 'H', 'S']) {
-        for (let r of [
-            '3',
-            '4',
-            '5',
-            '6',
-            '7',
-            '8',
-            '9',
-            'T',
-            'J',
-            'Q',
-            'K',
-            'A',
-            '2',
-        ]) {
-            cards.push(
-                <PlayingCard
-                    key={`${r}${s}`}
-                    suit={s as Suit}
-                    rank={r as Rank}
-                />
-            );
-        }
-    }
+    const ownPlayer = players.find((p) => p.id === clientId);
 
-    const testPlayers = players.map((p) => (
-        <Box key={`player-${p.id}`}>
-            {p.id}: {p.cardsLeft} cards
-        </Box>
-    ));
+    // inPlay hand width + discard width + gaps
+    const IN_PLAY_WIDTH =
+        5 * PLAYING_CARD_WIDTH + 8 * 4 + PLAYING_CARD_WIDTH + 32;
 
     return (
-        <>
-            {/* <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-                {JSON.stringify(gameState, null, 2)}
-            </pre>
-            <TextField
-                variant="outlined"
-                label="Move"
-                value={move}
-                onChange={(e) => {
-                    const move = e.target.value.split(
-                        ','
-                    ) as WSMessagePlayMove['payload']['move'];
-                    setMove(move);
-                }}
-            /> */}
-            {/* <Box>{cards}</Box> */}
-            {testPlayers}
+        <Box position="relative" height="100%">
+            {/* turn indicator */}
             <Box
-                position="fixed"
+                position="absolute"
+                padding="16px"
                 sx={{
-                    bottom: `-${PLAYING_CARD_WIDTH / 2}px`,
-                    width: '100%',
+                    borderRadius: '4px',
+                    border: `2px solid ${palette.secondary.dark}`,
+                    left: '50%',
+                    top: '2%',
+                    transform: 'translateX(-50%)',
                 }}
             >
-                <Hand />
+                <Typography fontSize={32}>
+                    Player {turnNumber % players.length}'s Turn
+                </Typography>
             </Box>
-            {/* <Box display={'flex'} justifyContent={'end'}>
-                <DealingHandDemo />
-            </Box> */}
-            {/* <Button disabled={!move} onClick={() => handleMove(move!)}>
-                Play
-            </Button> */}
-        </>
+
+            {/* opponents */}
+            {players.length > 0 && (
+                <>
+                    <Box
+                        position="absolute"
+                        sx={{
+                            left: '1%',
+                            top: '35%',
+                        }}
+                    >
+                        <PlayerInfoDisplay
+                            id={players[0].id}
+                            name="John Ham"
+                            cardsLeft={players[0].cardsLeft}
+                            hasPassed={false}
+                        />
+                    </Box>
+                    <Box
+                        position="absolute"
+                        sx={{
+                            right: '1%',
+                            top: '35%',
+                        }}
+                    >
+                        <PlayerInfoDisplay
+                            id={players[1].id}
+                            name="John Ham"
+                            cardsLeft={players[1].cardsLeft}
+                            hasPassed={false}
+                        />
+                    </Box>
+                </>
+            )}
+
+            {/* board center */}
+            <Box
+                display="flex"
+                position="absolute"
+                justifyContent="space-between"
+                alignItems="center"
+                width={`${IN_PLAY_WIDTH}px`}
+                gap="32px"
+                sx={{
+                    left: '50%',
+                    top: '50%',
+                    transform: `translate(-${IN_PLAY_WIDTH / 2}px, -${
+                        PLAYING_CARD_WIDTH / WIDTH_TO_HEIGHT_RATIO / 2
+                    }px)`,
+                }}
+            >
+                <PlaceholderCard
+                    widthInPx={PLAYING_CARD_WIDTH}
+                    label="Discard"
+                />
+                <Box display="flex" gap="8px">
+                    {inPlay.map((c) => (
+                        <PlayingCard
+                            key={c}
+                            width={PLAYING_CARD_WIDTH}
+                            rank={c.charAt(0) as Rank}
+                            suit={c.charAt(1) as Suit}
+                        />
+                    ))}
+                </Box>
+            </Box>
+            {ownPlayer && (
+                <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    position="fixed"
+                    paddingX="32px"
+                    sx={{
+                        bottom: `-${PLAYING_CARD_WIDTH / 2}px`,
+                        width: '100%',
+                    }}
+                >
+                    <Box>
+                        <PlayerInfoDisplay
+                            id={ownPlayer.id}
+                            cardsLeft={ownPlayer.cardsLeft}
+                            hasPassed={false}
+                        />
+                    </Box>
+                    <Hand />
+                    <Box>
+                        <Button>Play</Button>
+                        <Button>Pass</Button>
+                    </Box>
+                </Box>
+            )}
+        </Box>
     );
 };
