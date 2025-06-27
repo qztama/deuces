@@ -1,5 +1,22 @@
 import { createTheme, ThemeOptions } from '@mui/material/styles';
 
+declare module '@mui/material/styles' {
+    interface Palette {
+        rank: {
+            gold: string;
+            silver: string;
+            bronze: string;
+        };
+    }
+    interface PaletteOptions {
+        rank?: {
+            gold: string;
+            silver: string;
+            bronze: string;
+        };
+    }
+}
+
 const getDesignTokens = (mode: 'light' | 'dark'): ThemeOptions => ({
     palette: {
         mode,
@@ -60,6 +77,11 @@ const getDesignTokens = (mode: 'light' | 'dark'): ThemeOptions => ({
                       main: '#B5D1E8',
                   },
               }),
+        rank: {
+            gold: '#E2C275',
+            silver: '#D1D1D1',
+            bronze: '#D9A066',
+        },
     },
     typography: {
         fontFamily: `'Inter', 'Nunito', sans-serif`,

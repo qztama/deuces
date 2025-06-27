@@ -25,16 +25,21 @@ export interface WSMessageRoomUpdated extends WSMessageBase {
     payload: {
         clientId: string;
         room: Room;
+        isGameStarted: boolean;
     };
 }
 
-export interface WSMessageLeave {
+export interface WSMessageLeave extends WSMessageBase {
     type: 'leave';
 }
 
 // Game Messages
-export interface WSMessageStartGame {
+export interface WSMessageStartGame extends WSMessageBase {
     type: 'start-game';
+}
+
+export interface WSMessageConnectToGame extends WSMessageBase {
+    type: 'connect-to-game';
 }
 
 export interface WSMessageGameUpdated extends WSMessageBase {
@@ -57,6 +62,7 @@ export type WSMessage =
     | WSMessageRoomUpdated
     | WSMessageLeave
     | WSMessageStartGame
+    | WSMessageConnectToGame
     | WSMessageGameUpdated
     | WSMessagePlayMove;
 

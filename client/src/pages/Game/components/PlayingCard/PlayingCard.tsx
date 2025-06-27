@@ -45,19 +45,21 @@ const PipLayout = ({
             paddingTop={`${verticalPadding}px`}
             paddingBottom={`${verticalPadding}px`}
         >
-            {pipCols.map((col, idx) => (
+            {pipCols.map((col, colIdx) => (
                 <Box
-                    key={idx}
+                    key={colIdx}
                     display="flex"
                     flexDirection="column"
                     height="100%"
                     justifyContent="space-around"
                 >
-                    {col.map((isFlipped) => {
+                    {col.map((isFlipped, rowIdx) => {
+                        const key = `${colIdx}=${rowIdx}`;
                         if (isFlipped === undefined) {
                             // put in placeholder
                             return (
                                 <Box
+                                    key={key}
                                     width={`${pipPlaceHolderSize}px`}
                                     height={`${pipPlaceHolderSize}px`}
                                 />
@@ -66,6 +68,7 @@ const PipLayout = ({
 
                         return (
                             <SuitIcon
+                                key={key}
                                 suit={suit}
                                 fill={fill}
                                 size={`${pipSizeInPx}px`}

@@ -58,12 +58,13 @@ export function initGame(clients: { id: string; name: string }[]): GameState {
 
     const shuffledCards = generateShuffledDeck();
     const { hands, leftOver } = dealCards(shuffledCards, clients.length as 3 | 4);
-    const players = clients.map(({ id }, idx) => {
+    const players = clients.map(({ id, name }, idx) => {
         const curPlayerHand = hands[idx];
         const hasDiamondThree = curPlayerHand.some((card) => card === '3D');
 
         return {
             id,
+            name,
             hand: hasDiamondThree ? curPlayerHand.concat(leftOver) : curPlayerHand,
             hasPassed: false,
             middleCard: hasDiamondThree ? leftOver : undefined,
@@ -116,27 +117,31 @@ export async function validateMove(gameState: GameState, clientId: string, move:
         throw new Error(`Error in move validation: ${clientId} cannot pass at a start of a new round`);
     }
 
-    const moveType = getHandType(move);
-    if (!moveType) {
-        throw new Error(`Error in move validation: could not determine hand type for ${JSON.stringify(move)}`);
-    }
-
-    if (!isNewRound) {
-        if (inPlay.hand.length !== move.length) {
-            throw new Error(
-                `Error in move validation: ${JSON.stringify(move)} cannot be played on top of ${JSON.stringify(
-                    inPlay.hand
-                )}`
-            );
+    if (!isPassMove) {
+        const moveType = getHandType(move);
+        if (!moveType) {
+            throw new Error(`Error in move validation: could not determine hand type for ${JSON.stringify(move)}`);
         }
 
-        const inPlayScore = getHandScore(inPlay.type, inPlay.hand);
-        const moveScore = getHandScore(moveType, move);
+        if (!isNewRound) {
+            if (inPlay.hand.length !== move.length) {
+                throw new Error(
+                    `Error in move validation: ${JSON.stringify(move)} cannot be played on top of ${JSON.stringify(
+                        inPlay.hand
+                    )}`
+                );
+            }
 
-        if (moveScore <= inPlayScore) {
-            throw new Error(
-                `Error in move validation: ${JSON.stringify(move)} must be bigger than ${JSON.stringify(inPlay.hand)}`
-            );
+            const inPlayScore = getHandScore(inPlay.type, inPlay.hand);
+            const moveScore = getHandScore(moveType, move);
+
+            if (moveScore <= inPlayScore) {
+                throw new Error(
+                    `Error in move validation: ${JSON.stringify(move)} must be bigger than ${JSON.stringify(
+                        inPlay.hand
+                    )}`
+                );
+            }
         }
     }
 
@@ -183,6 +188,7 @@ export function getNextGameState(curGameState: GameState, move: Card[]): GameSta
         return nextPlayerState;
     });
     const nextTurnNumber = getNextTurnNumber(turnNumber, nextPlayers);
+    const nextTurnPlayerIdx = nextTurnNumber % players.length;
 
     let nextInPlay: GameState['inPlay'] = isPassMove
         ? Object.assign({}, inPlay)
@@ -191,7 +197,7 @@ export function getNextGameState(curGameState: GameState, move: Card[]): GameSta
               hand: move,
               type: moveType,
           };
-    if (players[nextTurnNumber].id === inPlay?.playerId) {
+    if (players[nextTurnPlayerIdx].id === inPlay?.playerId) {
         // everyone else passed so we start a new round
         nextInPlay = null;
         nextPlayers.forEach((p) => {
@@ -206,7 +212,7 @@ export function getNextGameState(curGameState: GameState, move: Card[]): GameSta
         history: [
             ...history,
             {
-                playerId: players[turnNumber].id,
+                playerId: players[nextTurnPlayerIdx].id,
                 action: isPassMove ? 'passed' : 'played',
                 cards: isPassMove ? undefined : move,
                 type: isPassMove ? undefined : moveType,

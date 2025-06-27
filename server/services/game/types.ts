@@ -4,6 +4,7 @@ export { Rank, Suit, Card, HandType };
 
 export interface Player {
     id: string;
+    name: string;
     hand: Card[];
     hasPassed: boolean;
     middleCard?: Card[];
@@ -28,14 +29,12 @@ export interface GameState {
     winners: string[];
 }
 
-export interface ObfuscatedPlayer {
-    id: string;
-    name?: string;
+export interface ObfuscatedPlayer extends Omit<Player, 'hand'> {
     cardsLeft: number;
 }
 
 export interface PlayerGameState extends Pick<GameState, 'inPlay' | 'turnNumber' | 'history'> {
     id: string;
     hand: Card[];
-    opponents: ObfuscatedPlayer[];
+    players: ObfuscatedPlayer[];
 }

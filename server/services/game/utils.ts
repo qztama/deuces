@@ -12,13 +12,13 @@ export function getPlayerGameState(clientId: string, gameState: GameState): Play
     return {
         id: clientId,
         hand: curPlayer.hand,
-        opponents: gameState.players.reduce((acc, curPlayer) => {
-            if (curPlayer.id !== clientId) {
-                acc.push({
-                    id: curPlayer.id,
-                    cardsLeft: curPlayer.hand.length,
-                });
-            }
+        players: gameState.players.reduce((acc, curPlayer) => {
+            acc.push({
+                id: curPlayer.id,
+                name: curPlayer.name,
+                cardsLeft: curPlayer.hand.length,
+                hasPassed: curPlayer.hasPassed,
+            });
             return acc;
         }, [] as ObfuscatedPlayer[]),
         inPlay: gameState.inPlay,

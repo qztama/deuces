@@ -1,6 +1,6 @@
-import { WSMessage, WSMessageJoin, WSMessagePlayMove } from '../../../shared/wsMessages';
+import { WSMessage, WSMessageGameUpdated, WSMessageJoin, WSMessagePlayMove } from '../../../shared/wsMessages';
 import { WSContext } from '../types';
-import { handlePlayMove, handleStartGame } from './gameHandlers';
+import { handleConnectToGame, handlePlayMove, handleStartGame } from './gameHandlers';
 
 import { handleJoinRoom, handleLeaveRoom } from './roomHandlers';
 
@@ -16,12 +16,18 @@ export async function handleMessage(ctx: WSContext, data: string) {
                 await handleJoinRoom(ctx, joinMessage);
                 break;
             }
-            case 'leave': {
-                handleLeaveRoom(ctx);
-                break;
-            }
             case 'start-game': {
                 await handleStartGame(ctx);
+                break;
+            }
+            case 'connect-to-game': {
+                const playerGameState = await handleConnectToGame(ctx);
+
+                const response: WSMessageGameUpdated = {
+                    type: 'game-updated',
+                    payload: { gameState: playerGameState },
+                };
+                ctx.ws.send(JSON.stringify(response));
                 break;
             }
             case 'play-move': {

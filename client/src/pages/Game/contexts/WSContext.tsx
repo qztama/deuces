@@ -24,7 +24,6 @@ type SubscriptionMap = Map<
 >;
 
 interface WSContextType {
-    clientId?: string;
     socket: WebSocket | null;
     connectionStatus: 'connecting' | 'open' | 'closed' | 'error';
     subscribe: <K extends keyof WSMessageMap>(
@@ -41,7 +40,6 @@ interface WSContextType {
             ? [payload: P]
             : []
     ) => void;
-    setClientId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const WSContext = createContext<WSContextType | undefined>(undefined);
@@ -54,9 +52,6 @@ export const WSContextProvider = ({
     const socketRef = useRef<WebSocket | null>(null);
     const hasConnectedRef = useRef(false);
     const subscriptionsRef = useRef<SubscriptionMap>(new Map());
-    const [clientId, setClientId] = useState<string>(
-        '0197944f-1401-7597-ab1b-c057fa058878'
-    );
     const [connectionStatus, setConnectionStatus] =
         useState<WSContextType['connectionStatus']>('connecting');
 
@@ -169,12 +164,10 @@ export const WSContextProvider = ({
     return (
         <WSContext.Provider
             value={{
-                clientId,
                 socket: socketRef.current,
                 connectionStatus,
                 subscribe,
                 sendMessage,
-                setClientId,
             }}
         >
             {children}

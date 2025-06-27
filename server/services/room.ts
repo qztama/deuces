@@ -12,6 +12,7 @@ export interface Room {
         isHost: boolean;
         status: 'connected' | 'disconnected';
     }[];
+    isGameStarted: boolean;
 }
 
 const alphabet = 'abcdefghijklmnopqrstuvwxyz';
@@ -55,6 +56,7 @@ export async function create() {
     const roomData: Room = {
         code: roomCode,
         connectedClients: [],
+        isGameStarted: false,
     };
 
     redisClient.set(roomRedisKey, JSON.stringify(roomData));
@@ -75,7 +77,6 @@ export async function join(roomCode: string, clientId: string, name?: string): P
         }
 
         room.connectedClients[matchedClientIdx].status = 'connected';
-        await redisClient.set(roomRedisKey, JSON.stringify(room));
         return room;
     }
 
@@ -89,8 +90,6 @@ export async function join(roomCode: string, clientId: string, name?: string): P
         isHost: room.connectedClients.length === 0,
         status: 'connected',
     });
-
-    await redisClient.set(roomRedisKey, JSON.stringify(room));
 
     return room;
 }

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Box, Button, TextField, Typography, useTheme } from '@mui/material';
 
-import { WSMessageGameUpdated, WSMessagePlayMove } from '@shared/wsMessages';
 import { Card } from '@shared/game';
 import { Rank, Suit } from '@shared/game';
 import { PlayingCard } from './components/PlayingCard/PlayingCard';
@@ -9,26 +8,60 @@ import { Hand } from './components/Hand';
 import { useGameContext } from './contexts/GameContext';
 import { PLAYING_CARD_WIDTH } from './constants';
 import { PlayerInfoDisplay } from './components/PlayerInfoDisplay';
-import { useWSContext } from './contexts/WSContext';
 import { WIDTH_TO_HEIGHT_RATIO } from './components/PlayingCard/constants';
 import { PlaceholderCard } from './components/PlayingCard/PlaceholderCard';
+import { useRoomContext } from './contexts/RoomContext';
+import { PlayButton } from './components/PlayButton';
+import { PassButton } from './components/PassButton';
 
-interface GameViewProps {
-    gameState: WSMessageGameUpdated['payload']['gameState'];
-    handleMove: (move: WSMessagePlayMove['payload']['move']) => void;
-}
+const OPPONENT_INFO_POS: Record<
+    number,
+    { left?: string; right?: string; top?: string; bottom?: string }[]
+> = {
+    2: [
+        { left: '1%', top: '35%' },
+        { right: '1%', top: '35%' },
+    ],
+};
 
-export const GameView = ({ gameState, handleMove }: GameViewProps) => {
+export const GameView = () => {
     const { palette } = useTheme();
-    const { clientId } = useWSContext();
-    const { players, turnNumber } = useGameContext();
-    const inPlay: Card[] = ['AD', 'AC', 'AH', 'AS'];
-
-    const ownPlayer = players.find((p) => p.id === clientId);
+    const { clientId } = useRoomContext();
+    const { players, curTurnPlayer, inPlay } = useGameContext();
 
     // inPlay hand width + discard width + gaps
-    const IN_PLAY_WIDTH =
+    const IN_PLAY_HAND_WIDTH_IN_PX = 5 * PLAYING_CARD_WIDTH + 8 * 4;
+    const BOARD_WIDTH =
         5 * PLAYING_CARD_WIDTH + 8 * 4 + PLAYING_CARD_WIDTH + 32;
+
+    const ownPlayerIdx = players.findIndex((p) => p.id === clientId);
+    const ownPlayer = ownPlayerIdx !== -1 ? players[ownPlayerIdx] : undefined;
+    const opponentPlayers = OPPONENT_INFO_POS[players.length - 1]?.map(
+        (posObj, idx) => {
+            if (ownPlayerIdx === -1) {
+                return null;
+            }
+
+            const curOpponent =
+                players[(ownPlayerIdx + idx + 1) % players.length];
+
+            return (
+                <Box
+                    key={curOpponent.id}
+                    position="absolute"
+                    sx={{ ...posObj }}
+                >
+                    <PlayerInfoDisplay
+                        id={curOpponent.id}
+                        name={curOpponent.name}
+                        cardsLeft={curOpponent.cardsLeft}
+                        hasPassed={curOpponent.hasPassed}
+                        isTurn={curTurnPlayer?.id === curOpponent.id}
+                    />
+                </Box>
+            );
+        }
+    );
 
     return (
         <Box position="relative" height="100%">
@@ -45,43 +78,12 @@ export const GameView = ({ gameState, handleMove }: GameViewProps) => {
                 }}
             >
                 <Typography fontSize={32}>
-                    Player {turnNumber % players.length}'s Turn
+                    {curTurnPlayer?.name}'s Turn
                 </Typography>
             </Box>
 
             {/* opponents */}
-            {players.length > 0 && (
-                <>
-                    <Box
-                        position="absolute"
-                        sx={{
-                            left: '1%',
-                            top: '35%',
-                        }}
-                    >
-                        <PlayerInfoDisplay
-                            id={players[0].id}
-                            name="John Ham"
-                            cardsLeft={players[0].cardsLeft}
-                            hasPassed={false}
-                        />
-                    </Box>
-                    <Box
-                        position="absolute"
-                        sx={{
-                            right: '1%',
-                            top: '35%',
-                        }}
-                    >
-                        <PlayerInfoDisplay
-                            id={players[1].id}
-                            name="John Ham"
-                            cardsLeft={players[1].cardsLeft}
-                            hasPassed={false}
-                        />
-                    </Box>
-                </>
-            )}
+            {opponentPlayers}
 
             {/* board center */}
             <Box
@@ -89,12 +91,12 @@ export const GameView = ({ gameState, handleMove }: GameViewProps) => {
                 position="absolute"
                 justifyContent="space-between"
                 alignItems="center"
-                width={`${IN_PLAY_WIDTH}px`}
+                width={`${BOARD_WIDTH}px`}
                 gap="32px"
                 sx={{
                     left: '50%',
                     top: '50%',
-                    transform: `translate(-${IN_PLAY_WIDTH / 2}px, -${
+                    transform: `translate(-${BOARD_WIDTH / 2}px, -${
                         PLAYING_CARD_WIDTH / WIDTH_TO_HEIGHT_RATIO / 2
                     }px)`,
                 }}
@@ -103,17 +105,31 @@ export const GameView = ({ gameState, handleMove }: GameViewProps) => {
                     widthInPx={PLAYING_CARD_WIDTH}
                     label="Discard"
                 />
-                <Box display="flex" gap="8px">
-                    {inPlay.map((c) => (
-                        <PlayingCard
-                            key={c}
-                            width={PLAYING_CARD_WIDTH}
-                            rank={c.charAt(0) as Rank}
-                            suit={c.charAt(1) as Suit}
+                <Box
+                    display="flex"
+                    gap="8px"
+                    width={`${IN_PLAY_HAND_WIDTH_IN_PX}px`}
+                    justifyContent="center"
+                >
+                    {!inPlay ? (
+                        <PlaceholderCard
+                            widthInPx={PLAYING_CARD_WIDTH}
+                            label="Play Anything"
                         />
-                    ))}
+                    ) : (
+                        inPlay.hand.map((c) => (
+                            <PlayingCard
+                                key={c}
+                                width={PLAYING_CARD_WIDTH}
+                                rank={c.charAt(0) as Rank}
+                                suit={c.charAt(1) as Suit}
+                            />
+                        ))
+                    )}
                 </Box>
             </Box>
+
+            {/* player hud */}
             {ownPlayer && (
                 <Box
                     display="flex"
@@ -128,14 +144,21 @@ export const GameView = ({ gameState, handleMove }: GameViewProps) => {
                     <Box>
                         <PlayerInfoDisplay
                             id={ownPlayer.id}
+                            name={ownPlayer.name}
                             cardsLeft={ownPlayer.cardsLeft}
                             hasPassed={false}
+                            isTurn={curTurnPlayer?.id === ownPlayer.id}
                         />
                     </Box>
                     <Hand />
-                    <Box>
-                        <Button>Play</Button>
-                        <Button>Pass</Button>
+                    <Box
+                        display="flex"
+                        flexDirection="column"
+                        gap="8px"
+                        marginRight="64px"
+                    >
+                        <PlayButton />
+                        <PassButton />
                     </Box>
                 </Box>
             )}

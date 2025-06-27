@@ -1,16 +1,9 @@
-import {
-    WSMessageBase,
-    WSMessageConnected,
-    WSMessageJoin,
-    WSMessageLeave,
-    WSMessageRoomUpdated,
-    WSMessageGameUpdated,
-} from '../../../shared/wsMessages';
-import { subscribeToGame, unsubscribeToGame } from '../../services/game';
-import { PlayerGameState } from '../../services/game/types';
-
+import { WSMessageJoin, WSMessageRoomUpdated } from '../../../shared/wsMessages';
+import * as redisService from '../../services/redis';
+import { unsubscribeToGame } from '../../services/game';
 import {
     Room,
+    getRoomRedisKey,
     join as joinRoom,
     leave as leaveRoom,
     subscribeToRoomInfo,
@@ -22,6 +15,7 @@ import { getPrintFriendlyWSContext } from '../utils';
 export async function handleJoinRoom(ctx: WSContext, joinMessage: WSMessageJoin) {
     const { ws } = ctx;
     const { payload } = joinMessage;
+    const redisClient = redisService.getClient();
 
     // user rejoined; update their clientId to their previous clientId
     if (payload.clientId) {
@@ -29,27 +23,23 @@ export async function handleJoinRoom(ctx: WSContext, joinMessage: WSMessageJoin)
     }
 
     subscribeToRoomInfo(ctx, payload.roomCode, (roomInfo: Room) => {
+        // update session ctx for player to note that game has started
+        ctx.isGameStarted = roomInfo.isGameStarted;
+
         const response: WSMessageRoomUpdated = {
             type: 'room-updated',
             payload: {
                 clientId: ctx.clientId,
                 room: roomInfo,
+                isGameStarted: roomInfo.isGameStarted,
             },
         };
         ws.send(JSON.stringify(response));
     });
 
-    subscribeToGame(ctx, payload.roomCode, (playerGameState: PlayerGameState) => {
-        const response: WSMessageGameUpdated = {
-            type: 'game-updated',
-            payload: {
-                gameState: playerGameState,
-            },
-        };
-        ws.send(JSON.stringify(response));
-    });
-
-    await joinRoom(payload.roomCode, ctx.clientId, payload.name);
+    const room = await joinRoom(payload.roomCode, ctx.clientId, payload.name);
+    const roomRedisKey = getRoomRedisKey(payload.roomCode);
+    await redisClient.set(roomRedisKey, JSON.stringify(room));
 }
 
 export function handleLeaveRoom(ctx: WSContext) {

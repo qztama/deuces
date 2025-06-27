@@ -1,8 +1,19 @@
-import { getGameRedisKey, getGameState, getNextGameState, initGame, validateMove } from '../../services/game';
+import { WSMessageGameUpdated } from '../../../shared/wsMessages';
+import { PlayerGameState } from '../../services/game/types';
+import {
+    getGameRedisKey,
+    getGameState,
+    getNextGameState,
+    initGame,
+    validateMove,
+    subscribeToGame,
+    getGameStateByRoomCode,
+} from '../../services/game';
 import * as redisService from '../../services/redis';
 import { getRoomInfo, getRoomRedisKey } from '../../services/room';
 import { Card } from '../../services/game/types';
 import { WSContext } from '../types';
+import { getPlayerGameState } from '../../services/game/utils';
 
 export async function handleStartGame(ctx: WSContext) {
     const { roomCode } = ctx;
@@ -13,18 +24,40 @@ export async function handleStartGame(ctx: WSContext) {
     }
 
     const redisRoomKey = getRoomRedisKey(roomCode);
-    const { connectedClients } = await getRoomInfo(redisClient, redisRoomKey);
-    const hostClient = connectedClients.find(({ isHost }) => isHost);
+    const roomInfo = await getRoomInfo(redisClient, redisRoomKey);
+    const hostClient = roomInfo.connectedClients.find(({ isHost }) => isHost);
 
     if (hostClient?.id !== ctx.clientId) {
         throw new Error(`Error starting game: client ${ctx.clientId} is not the host!`);
     }
 
     const gameRedisKey = getGameRedisKey(roomCode);
-    const gameState = initGame(connectedClients.map(({ id, name }) => ({ id, name })));
+    const gameState = initGame(roomInfo.connectedClients.map(({ id, name }) => ({ id, name })));
 
-    // update redis with the game state to trigger player subscription callbacks
-    redisClient.set(gameRedisKey, JSON.stringify(gameState));
+    // store the game and notify players that the game is ready
+    await redisClient.set(gameRedisKey, JSON.stringify(gameState));
+    await redisClient.set(redisRoomKey, JSON.stringify({ ...roomInfo, isGameStarted: true }));
+}
+
+export async function handleConnectToGame(ctx: WSContext): Promise<PlayerGameState> {
+    const { ws, roomCode } = ctx;
+
+    if (!roomCode) {
+        throw new Error('handleConnectToGame: Could not find roomCode in ctx.');
+    }
+
+    subscribeToGame(ctx, roomCode, (playerGameState: PlayerGameState) => {
+        const response: WSMessageGameUpdated = {
+            type: 'game-updated',
+            payload: {
+                gameState: playerGameState,
+            },
+        };
+        ws.send(JSON.stringify(response));
+    });
+
+    const gameState = await getGameStateByRoomCode(roomCode);
+    return getPlayerGameState(ctx.clientId, gameState);
 }
 
 export async function handlePlayMove(ctx: WSContext, move: Card[]) {
