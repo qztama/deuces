@@ -2,7 +2,7 @@ import { RedisClientType } from 'redis';
 import { HttpError } from '../../utils/error';
 
 import * as redisService from '../redis';
-import { WSContext } from '../../ws/types';
+import { WSContext } from '../../wss/types';
 import { Card, GameEvent, GameState, HandType, Player, PlayerGameState } from './types';
 import {
     dealCards,
@@ -88,26 +88,44 @@ export function initGame(clients: { id: string; name: string }[]): GameState {
 }
 
 // empty array move = pass
-export async function validateMove(gameState: GameState, clientId: string, move: Card[]): Promise<boolean> {
+export async function validateMove(
+    gameState: GameState,
+    clientId: string,
+    move: Card[]
+): Promise<{ isValid: boolean; errorMessage: string }> {
     const { players, turnNumber, inPlay } = gameState;
 
     // check player turn
     if (clientId !== players[turnNumber % players.length].id) {
-        throw new Error(`Error in move validation: it is not ${clientId}'s turn`);
+        return {
+            isValid: false,
+            errorMessage: 'It is not the your turn.',
+        };
     }
 
     // check if player has those cards
     const player = players.find(({ id }) => id === clientId);
     if (!player) {
-        throw new Error(`Error in move validation: ${clientId} is not a player in the game`);
+        throw new Error('Could not find client id in the players list.');
     }
 
     const hasCardsForMove = move.every((card) => player.hand.includes(card));
     if (!hasCardsForMove) {
-        throw new Error(`Error in move validation: ${clientId} does not have the cards for this move`);
+        return {
+            isValid: false,
+            errorMessage: 'You do not have the cards to play this move.',
+        };
     }
 
     // check for move validity
+    // first move must include a diamond 3
+    if (turnNumber === 0 && !move.includes('3D')) {
+        return {
+            isValid: false,
+            errorMessage: 'The first move must include the 3 of diamonds.',
+        };
+    }
+
     // if everyone else who is still playing has passed, this can be anything
     // otherwise: verify hand type (is valid and matches with hand in play) and bigger
     const isNewRound = inPlay === null;
@@ -120,32 +138,33 @@ export async function validateMove(gameState: GameState, clientId: string, move:
     if (!isPassMove) {
         const moveType = getHandType(move);
         if (!moveType) {
-            throw new Error(`Error in move validation: could not determine hand type for ${JSON.stringify(move)}`);
+            return {
+                isValid: false,
+                errorMessage: 'This move is not a valid hand.',
+            };
         }
 
         if (!isNewRound) {
             if (inPlay.hand.length !== move.length) {
-                throw new Error(
-                    `Error in move validation: ${JSON.stringify(move)} cannot be played on top of ${JSON.stringify(
-                        inPlay.hand
-                    )}`
-                );
+                return {
+                    isValid: false,
+                    errorMessage: 'Your move must be the same number of cards as what is in play.',
+                };
             }
 
             const inPlayScore = getHandScore(inPlay.type, inPlay.hand);
             const moveScore = getHandScore(moveType, move);
 
             if (moveScore <= inPlayScore) {
-                throw new Error(
-                    `Error in move validation: ${JSON.stringify(move)} must be bigger than ${JSON.stringify(
-                        inPlay.hand
-                    )}`
-                );
+                return {
+                    isValid: false,
+                    errorMessage: 'Your move must be bigger than what is in play.',
+                };
             }
         }
     }
 
-    return true;
+    return { isValid: true, errorMessage: '' };
 }
 
 function getNextTurnNumber(curTurnNumber: number, nextPlayers: Player[]): number {

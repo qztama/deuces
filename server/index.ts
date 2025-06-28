@@ -4,7 +4,7 @@ import cors from 'cors';
 import { initRedisClient } from './services/redis';
 import { errorHandler } from './utils/error';
 import { create as createRoom } from './services/room';
-import { initWebsocketServer } from './ws';
+import { initWebsocketServer } from './wss';
 
 const WSS_PORT = 3001;
 

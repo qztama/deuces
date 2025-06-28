@@ -2,7 +2,7 @@ import { Room } from '../server/services/room';
 import { PlayerGameState, Card } from '../server/services/game/types';
 
 export interface WSMessageBase {
-    type: 'connected' | 'join' | 'joined' | 'room-updated';
+    type: string;
     payload?: Record<string, any>;
 }
 
@@ -56,6 +56,20 @@ export interface WSMessagePlayMove extends WSMessageBase {
     };
 }
 
+// Error
+export const WS_ERR_TYPES = {
+    GENERIC: 'Internal Server Error',
+    INVALID_MOVE: 'Invalid Move',
+} as const;
+
+export interface WSMessageError extends WSMessageBase {
+    type: 'error';
+    payload: {
+        type: (typeof WS_ERR_TYPES)[keyof typeof WS_ERR_TYPES];
+        message: string;
+    };
+}
+
 export type WSMessage =
     | WSMessageConnected
     | WSMessageJoin
@@ -64,7 +78,8 @@ export type WSMessage =
     | WSMessageStartGame
     | WSMessageConnectToGame
     | WSMessageGameUpdated
-    | WSMessagePlayMove;
+    | WSMessagePlayMove
+    | WSMessageError;
 
 type MessageMap<T extends { type: string }> = {
     [M in T as M['type']]: M;

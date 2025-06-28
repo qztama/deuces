@@ -84,16 +84,19 @@ describe('determineTurnOrder', () => {
         const players: Player[] = [
             {
                 id: 'player1',
+                name: 'Player 1',
                 hand: ['5S', '6H'],
                 hasPassed: false,
             },
             {
                 id: 'player2',
+                name: 'Player 2',
                 hand: ['3D', '9C'],
                 hasPassed: false,
             },
             {
                 id: 'player3',
+                name: 'Player 3',
                 hand: ['7H', '8S'],
                 hasPassed: false,
             },

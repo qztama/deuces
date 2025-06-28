@@ -1,6 +1,6 @@
 import { createClient, RedisClientType } from 'redis';
-import { WSContext } from '../ws/types';
-import { getPrintFriendlyWSContext } from '../ws/utils';
+import { WSContext } from '../wss/types';
+import { getPrintFriendlyWSContext } from '../wss/utils';
 
 let redisClient: RedisClientType;
 let subscriber: RedisClientType;
@@ -11,9 +11,7 @@ export const initRedisClient = async () => {
     if (!redisClient) {
         console.log('Initializing Redis Client...');
         redisClient = createClient();
-        redisClient.on('error', (err) =>
-            console.error('Redis Client Error', err)
-        );
+        redisClient.on('error', (err) => console.error('Redis Client Error', err));
         await redisClient.connect();
 
         subscriber = redisClient.duplicate();
@@ -39,13 +37,8 @@ export const initRedisClient = async () => {
 
 export const getClient = () => redisClient;
 
-export async function subscribe(
-    ctx: WSContext,
-    key: string,
-    cb: () => Promise<void>
-) {
-    const subs =
-        subscriptions.get(key) ?? new Map<string, () => Promise<void>>();
+export async function subscribe(ctx: WSContext, key: string, cb: () => Promise<void>) {
+    const subs = subscriptions.get(key) ?? new Map<string, () => Promise<void>>();
     subs.set(ctx.clientId, cb);
     subscriptions.set(key, subs);
 }
@@ -54,11 +47,7 @@ export async function unsubscribe(ctx: WSContext, key: string) {
     const subs = subscriptions.get(key);
 
     if (!subs) {
-        console.warn(
-            'Could not find subs to unsubscribe.',
-            getPrintFriendlyWSContext(ctx),
-            key
-        );
+        console.warn('Could not find subs to unsubscribe.', getPrintFriendlyWSContext(ctx), key);
         return;
     }
 

@@ -60,11 +60,11 @@ export async function handleConnectToGame(ctx: WSContext): Promise<PlayerGameSta
     return getPlayerGameState(ctx.clientId, gameState);
 }
 
-export async function handlePlayMove(ctx: WSContext, move: Card[]) {
+export async function handlePlayMove(ctx: WSContext, move: Card[]): Promise<null | string> {
     const { roomCode, clientId } = ctx;
 
     if (!roomCode) {
-        throw new Error(`Error starting game: could not find roomCode for client ${ctx.clientId}`);
+        throw new Error(`Could not find roomCode for client ${ctx.clientId}`);
     }
 
     const redisClient = redisService.getClient();
@@ -72,14 +72,14 @@ export async function handlePlayMove(ctx: WSContext, move: Card[]) {
     const gameState = await getGameState(redisClient, gameRedisKey);
 
     // 1. validate move
-    const isValidMove = await validateMove(gameState, clientId, move);
+    const { isValid: isValidMove, errorMessage: invalidMessage } = await validateMove(gameState, clientId, move);
 
     // 2. update redis with next game state
     if (isValidMove) {
         const nextGameState = getNextGameState(gameState, move);
         redisClient.set(gameRedisKey, JSON.stringify(nextGameState));
-        return;
+        return null;
     }
 
-    // TODO: send error message when invalid
+    return invalidMessage;
 }

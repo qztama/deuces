@@ -48,6 +48,9 @@ const getDesignTokens = (mode: 'light' | 'dark'): ThemeOptions => ({
                   info: {
                       main: '#B5D1E8',
                   },
+                  error: {
+                      main: '#B55F8E',
+                  },
               }
             : {
                   // 🌙 Dark Mode Palette
@@ -75,6 +78,9 @@ const getDesignTokens = (mode: 'light' | 'dark'): ThemeOptions => ({
                   },
                   info: {
                       main: '#B5D1E8',
+                  },
+                  error: {
+                      main: '#D277A3',
                   },
               }),
         rank: {

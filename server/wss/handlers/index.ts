@@ -1,8 +1,15 @@
-import { WSMessage, WSMessageGameUpdated, WSMessageJoin, WSMessagePlayMove } from '../../../shared/wsMessages';
+import {
+    WSMessage,
+    WSMessageGameUpdated,
+    WSMessageJoin,
+    WSMessagePlayMove,
+    WS_ERR_TYPES,
+    WSMessageError,
+} from '../../../shared/wsMessages';
 import { WSContext } from '../types';
 import { handleConnectToGame, handlePlayMove, handleStartGame } from './gameHandlers';
 
-import { handleJoinRoom, handleLeaveRoom } from './roomHandlers';
+import { handleJoinRoom } from './roomHandlers';
 
 export async function handleMessage(ctx: WSContext, data: string) {
     var message = JSON.parse(String(data)) as WSMessage;
@@ -32,11 +39,33 @@ export async function handleMessage(ctx: WSContext, data: string) {
             }
             case 'play-move': {
                 const playMoveMessage = message as WSMessagePlayMove;
-                handlePlayMove(ctx, playMoveMessage.payload.move);
+                const invalidMessage = await handlePlayMove(ctx, playMoveMessage.payload.move);
+
+                if (invalidMessage) {
+                    const response: WSMessageError = {
+                        type: 'error',
+                        payload: {
+                            type: 'Invalid Move',
+                            message: invalidMessage,
+                        },
+                    };
+                    ctx.ws.send(JSON.stringify(response));
+                }
                 break;
             }
         }
     } catch (err) {
-        console.error(`Error on message with type: ${message.type}`, err);
+        console.error(`In handleMessage:`, err);
+
+        const message = err instanceof Error ? err.message : 'Something went wrong.';
+        const errResponse: WSMessageError = {
+            type: 'error',
+            payload: {
+                type: WS_ERR_TYPES.GENERIC,
+                message,
+            },
+        };
+
+        ctx.ws.send(JSON.stringify(errResponse));
     }
 }
