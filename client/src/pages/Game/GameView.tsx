@@ -1,18 +1,21 @@
-import { useState } from 'react';
-import { Box, Button, TextField, Typography, useTheme } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 
-import { Card } from '@shared/game';
-import { Rank, Suit } from '@shared/game';
-import { PlayingCard } from './components/PlayingCard/PlayingCard';
-import { Hand } from './components/Hand';
-import { useGameContext } from './contexts/GameContext';
-import { PLAYING_CARD_WIDTH } from './constants';
-import { PlayerInfoDisplay } from './components/PlayerInfoDisplay';
-import { WIDTH_TO_HEIGHT_RATIO } from './components/PlayingCard/constants';
-import { PlaceholderCard } from './components/PlayingCard/PlaceholderCard';
+import { Rank, Suit } from '@shared/game/types';
+
+import { GameContextProvider, useGameContext } from './contexts/GameContext';
 import { useRoomContext } from './contexts/RoomContext';
+
+import { PlayerInfoDisplay } from './components/PlayerInfoDisplay';
+import { PlayingCard } from './components/PlayingCard/PlayingCard';
+import { PlaceholderCard } from './components/PlayingCard/PlaceholderCard';
+import { WIDTH_TO_HEIGHT_RATIO } from './components/PlayingCard/constants';
+import { Hand } from './components/Hand';
 import { PlayButton } from './components/PlayButton';
 import { PassButton } from './components/PassButton';
+import { SortButton } from './components/SortButton';
+import { GameOverDialog } from './components/GameOverDialog';
+
+import { PLAYING_CARD_WIDTH } from './constants';
 
 const OPPONENT_INFO_POS: Record<
     number,
@@ -24,7 +27,7 @@ const OPPONENT_INFO_POS: Record<
     ],
 };
 
-export const GameView = () => {
+export const GameViewContent = () => {
     const { palette } = useTheme();
     const { clientId } = useRoomContext();
     const { players, curTurnPlayer, inPlay } = useGameContext();
@@ -65,6 +68,7 @@ export const GameView = () => {
 
     return (
         <Box position="relative" height="100%">
+            <GameOverDialog />
             {/* turn indicator */}
             <Box
                 position="absolute"
@@ -154,14 +158,21 @@ export const GameView = () => {
                     <Box
                         display="flex"
                         flexDirection="column"
-                        gap="8px"
+                        gap="4px"
                         marginRight="64px"
                     >
                         <PlayButton />
                         <PassButton />
+                        <SortButton />
                     </Box>
                 </Box>
             )}
         </Box>
     );
 };
+
+export const GameView = () => (
+    <GameContextProvider>
+        <GameViewContent />
+    </GameContextProvider>
+);

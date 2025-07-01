@@ -6,7 +6,10 @@ import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import getTheme from './theme';
 import { NavBar } from './components/NavBar';
 import Home from './pages/Home';
-import GameRoom from './pages/Game';
+import { GameLayout } from './pages/Game/GameLayout';
+import { GameInterstitial } from './pages/Game/GameInterstitial';
+import { GameView } from './pages/Game/GameView';
+import Room from './pages/Game/Room';
 
 const App: React.FC = () => {
     const [mode, setMode] = useState<'light' | 'dark'>('dark');
@@ -27,8 +30,13 @@ const App: React.FC = () => {
                             <Route path="/" element={<Home />} />
                             <Route
                                 path="/room/:roomCode"
-                                element={<GameRoom />}
-                            />
+                                element={<GameLayout />}
+                            >
+                                <Route element={<GameInterstitial />}>
+                                    <Route index element={<Room />} />
+                                    <Route path="game" element={<GameView />} />
+                                </Route>
+                            </Route>
                         </Routes>
                     </Box>
                 </Box>

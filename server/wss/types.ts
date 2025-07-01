@@ -5,4 +5,5 @@ export interface WSContext {
     clientId: string;
     roomCode?: string;
     isGameStarted: boolean;
+    isGameOver: boolean;
 }

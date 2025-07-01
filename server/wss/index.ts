@@ -17,9 +17,12 @@ export function initWebsocketServer(wssPort: number) {
             ws: client,
             clientId: uuidv7(),
             isGameStarted: false,
+            isGameOver: false,
         };
 
-        client.on('message', async (data) => handleMessage(ctx, String(data)));
+        client.on('message', async (data) => {
+            await handleMessage(ctx, String(data));
+        });
 
         client.on('close', () => {
             try {
@@ -27,7 +30,7 @@ export function initWebsocketServer(wssPort: number) {
                 if (ctx.roomCode) {
                     console.log(`Connection closed for player ${ctx.clientId}`);
 
-                    if (ctx.isGameStarted) {
+                    if (ctx.isGameStarted && !ctx.isGameOver) {
                         disconnectRoom(ctx.roomCode, ctx.clientId);
                     } else {
                         handleLeaveRoom(ctx);

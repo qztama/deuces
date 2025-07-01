@@ -1,20 +1,23 @@
+import { useEffect } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 
-import { ConnectedClient } from '.';
 import { PlayerCard } from './components/PlayerCard';
 import { useNavigate } from 'react-router';
 import { useWSContext } from './contexts/WSContext';
+import { useRoomContext } from './contexts/RoomContext';
 
-interface RoomProps {
-    clientId: string;
-    roomCode: string;
-    connectedClients: ConnectedClient[];
-}
-
-const Room = (props: RoomProps) => {
-    const { clientId, roomCode, connectedClients } = props;
+const Room = () => {
+    const { clientId, roomCode, connectedClients, isGameStarted, isGameOver } =
+        useRoomContext();
     const navigate = useNavigate();
     const { sendMessage } = useWSContext();
+
+    useEffect(() => {
+        if (isGameStarted && !isGameOver) {
+            // automatically navigate player to the game if the game is in progress
+            navigate('game');
+        }
+    }, [isGameStarted, isGameOver]);
 
     const playerCards = connectedClients.map((client) => {
         return (
@@ -22,16 +25,18 @@ const Room = (props: RoomProps) => {
                 key={`${client.id}`}
                 name={`${client.name}`}
                 isHost={client.isHost}
+                isReady={client.isReady}
                 isCurrentPlayer={client.id === clientId}
                 connectionStatus={client.status}
             />
         );
     });
-    const isHost = connectedClients.some(
-        ({ id, isHost }) => id === clientId && isHost
-    );
+    const ownClientInfo = connectedClients.find((p) => p.id === clientId);
 
     const handleStartGame = () => sendMessage('start-game');
+    const handleReadyToggle = () => {
+        sendMessage('set-ready', { isReady: !ownClientInfo?.isReady });
+    };
     const handleLeaveGame = () => navigate('/');
 
     return (
@@ -52,8 +57,12 @@ const Room = (props: RoomProps) => {
                 {playerCards}
             </Box>
             <Box display="flex" gap="16px" paddingTop="8px">
-                {isHost && (
+                {ownClientInfo?.isHost ? (
                     <Button onClick={handleStartGame}>Start Game</Button>
+                ) : (
+                    <Button onClick={handleReadyToggle}>
+                        {!ownClientInfo?.isReady ? 'Ready' : 'Unready'}
+                    </Button>
                 )}
                 <Button onClick={handleLeaveGame}>Leave Game</Button>
             </Box>

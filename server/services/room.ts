@@ -10,9 +10,11 @@ export interface Room {
         id: string;
         name: string;
         isHost: boolean;
+        isReady: boolean;
         status: 'connected' | 'disconnected';
     }[];
     isGameStarted: boolean;
+    isGameOver: boolean;
 }
 
 const alphabet = 'abcdefghijklmnopqrstuvwxyz';
@@ -57,6 +59,7 @@ export async function create() {
         code: roomCode,
         connectedClients: [],
         isGameStarted: false,
+        isGameOver: false,
     };
 
     redisClient.set(roomRedisKey, JSON.stringify(roomData));
@@ -88,10 +91,36 @@ export async function join(roomCode: string, clientId: string, name?: string): P
         id: clientId,
         name: name ?? `Player ${room.connectedClients.length + 1}`,
         isHost: room.connectedClients.length === 0,
+        isReady: false,
         status: 'connected',
     });
 
     return room;
+}
+
+export async function updateClientReadyState({
+    clientId,
+    roomCode,
+    isReady,
+}: {
+    clientId: string;
+    roomCode: string;
+    isReady: boolean;
+}) {
+    const redisClient = redisService.getClient();
+    const roomRedisKey = getRoomRedisKey(roomCode);
+    const roomInfo: Room = await getRoomInfo(redisClient, roomRedisKey);
+    if (!roomInfo) {
+        throw new Error(`Could not find room ${roomCode}.`);
+    }
+
+    const ownConnectedClient = roomInfo.connectedClients.find((cc) => cc.id === clientId);
+    if (!ownConnectedClient) {
+        throw new Error(`Could not find client ${clientId} in connected clients for room ${roomInfo.code}`);
+    }
+
+    ownConnectedClient.isReady = isReady;
+    await redisClient.set(roomRedisKey, JSON.stringify(roomInfo));
 }
 
 export async function leave(roomCode: string, clientId: string) {

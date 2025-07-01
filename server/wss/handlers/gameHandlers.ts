@@ -25,7 +25,16 @@ export async function handleStartGame(ctx: WSContext) {
 
     const redisRoomKey = getRoomRedisKey(roomCode);
     const roomInfo = await getRoomInfo(redisClient, redisRoomKey);
+    const totalClients = roomInfo.connectedClients.length;
     const hostClient = roomInfo.connectedClients.find(({ isHost }) => isHost);
+
+    if (totalClients !== 3) {
+        throw new Error(`Error starting game: not enough players to start the game!`);
+    }
+
+    if (roomInfo.connectedClients.filter((cc) => !cc.isHost && cc.isReady).length !== totalClients - 1) {
+        throw new Error('Error starting game: other players are not ready yet!');
+    }
 
     if (hostClient?.id !== ctx.clientId) {
         throw new Error(`Error starting game: client ${ctx.clientId} is not the host!`);
@@ -77,7 +86,19 @@ export async function handlePlayMove(ctx: WSContext, move: Card[]): Promise<null
     // 2. update redis with next game state
     if (isValidMove) {
         const nextGameState = getNextGameState(gameState, move);
-        redisClient.set(gameRedisKey, JSON.stringify(nextGameState));
+
+        const isGameOver = nextGameState.winners.length === nextGameState.players.length - 1;
+
+        await redisClient.set(gameRedisKey, JSON.stringify(nextGameState));
+
+        if (isGameOver) {
+            const redisRoomKey = getRoomRedisKey(roomCode);
+            const roomInfo = await getRoomInfo(redisClient, redisRoomKey);
+            roomInfo.isGameOver = true;
+
+            await redisClient.set(redisRoomKey, JSON.stringify(roomInfo));
+        }
+
         return null;
     }
 

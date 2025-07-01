@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
 
-import { Card } from '@shared/game';
+import { Card } from '@shared/game/types';
 import {
     GameEvent,
     ObfuscatedPlayer,
@@ -17,8 +17,10 @@ interface GameContextType {
     hand: Card[];
     inPlay: PlayerGameState['inPlay'];
     history: GameEvent[];
+    winners: ObfuscatedPlayer[];
     hasDealtCards: boolean;
     selectedCards: Set<Card>;
+    isGameOver: boolean;
     toggleSelectedCard: (card: Card) => void;
     rearrangeHand: (rearrangedHand: Card[]) => void;
     makeMove: (move: 'play' | 'pass') => void;
@@ -36,6 +38,8 @@ export const GameContextProvider = ({
     const [hand, setHand] = useState<Card[]>([]);
     const [inPlay, setInPlay] = useState<PlayerGameState['inPlay']>(null);
     const [history, setHistory] = useState<GameEvent[]>([]);
+    const [winners, setWinners] = useState<ObfuscatedPlayer[]>([]);
+
     const [selectedCards, setSelectedCards] = useState<Set<Card>>(new Set());
     const [hasDealtCards, setHasDealtCards] = useState(false);
 
@@ -45,6 +49,8 @@ export const GameContextProvider = ({
     const { subscribe, sendMessage } = useWSContext();
     const { clientId, isGameStarted } = useRoomContext();
 
+    // const isGameOver = winners.length === players.length - 1 || true;
+    const isGameOver = winners.length === players.length - 1;
     const curTurnPlayer = players.length
         ? players[turnNumber % players.length]
         : null;
@@ -115,6 +121,7 @@ export const GameContextProvider = ({
                 hand: newHand,
                 inPlay: newInPlay,
                 history: newHistory,
+                winners: newWinners,
             } = payload.gameState;
 
             if (lastProcessingTurnNumber.current === newTurnNumber) {
@@ -138,7 +145,21 @@ export const GameContextProvider = ({
                 setTurnNumber(newTurnNumber);
                 setInPlay(newInPlay);
                 setHistory(newHistory);
-                setHand(newHand);
+                setWinners(
+                    // newWinners
+                    //     .map((id) => players.find((p) => p.id === id))
+                    //     .filter((p): p is ObfuscatedPlayer => Boolean(p?.id))
+                    newPlayers
+                );
+                console.log('newPlayers', newPlayers);
+                setHand((prev) => {
+                    if (!prev.length) {
+                        // hand not loaded yet so just update
+                        return newHand;
+                    }
+                    // otherwise preserve client side sort order
+                    return prev.filter((c) => newHand.includes(c));
+                });
             }
         });
 
@@ -157,6 +178,8 @@ export const GameContextProvider = ({
         }
 
         sendMessage('play-move', { move: Array.from(selectedCards) });
+        // clear the selected cards
+        setSelectedCards(new Set());
     };
 
     return (
@@ -167,8 +190,10 @@ export const GameContextProvider = ({
                 hand,
                 inPlay,
                 history,
+                winners,
                 hasDealtCards,
                 selectedCards,
+                isGameOver,
                 toggleSelectedCard: (card: Card) => {
                     const newSelectedCards = new Set(selectedCards);
 

@@ -1,15 +1,9 @@
-import {
-    Box,
-    Avatar,
-    Typography,
-    Icon,
-    Tooltip,
-    useTheme,
-} from '@mui/material';
+import { Box, Avatar, Typography, Icon, useTheme } from '@mui/material';
 
 interface PlayerCardProps {
     name: string;
     isHost: boolean;
+    isReady: boolean;
     isCurrentPlayer: boolean;
     connectionStatus: string;
 }
@@ -17,6 +11,7 @@ interface PlayerCardProps {
 export const PlayerCard = ({
     name,
     isHost,
+    isReady,
     isCurrentPlayer,
     connectionStatus,
 }: PlayerCardProps) => {
@@ -83,6 +78,7 @@ export const PlayerCard = ({
                         ? 'Connected'
                         : 'Disconnected'}
                 </Box>
+                {isReady && <Box>Ready</Box>}
             </Box>
         </Box>
     );

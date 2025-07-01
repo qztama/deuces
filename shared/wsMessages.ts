@@ -20,12 +20,18 @@ export interface WSMessageJoin extends WSMessageBase {
     };
 }
 
+export interface WSMessageSetReady extends WSMessageBase {
+    type: 'set-ready';
+    payload: {
+        isReady: boolean;
+    };
+}
+
 export interface WSMessageRoomUpdated extends WSMessageBase {
     type: 'room-updated';
     payload: {
         clientId: string;
         room: Room;
-        isGameStarted: boolean;
     };
 }
 
@@ -73,6 +79,7 @@ export interface WSMessageError extends WSMessageBase {
 export type WSMessage =
     | WSMessageConnected
     | WSMessageJoin
+    | WSMessageSetReady
     | WSMessageRoomUpdated
     | WSMessageLeave
     | WSMessageStartGame

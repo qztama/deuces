@@ -24,6 +24,7 @@ export function getPlayerGameState(clientId: string, gameState: GameState): Play
         inPlay: gameState.inPlay,
         turnNumber: gameState.turnNumber,
         history: gameState.history,
+        winners: gameState.winners,
     };
 }
 

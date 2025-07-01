@@ -1,4 +1,4 @@
-import { WSMessageJoin, WSMessageRoomUpdated } from '../../../shared/wsMessages';
+import { WSMessageJoin, WSMessageSetReady, WSMessageRoomUpdated } from '../../../shared/wsMessages';
 import * as redisService from '../../services/redis';
 import { unsubscribeToGame } from '../../services/game';
 import {
@@ -8,6 +8,7 @@ import {
     leave as leaveRoom,
     subscribeToRoomInfo,
     unsubscribeToRoomInfo,
+    updateClientReadyState,
 } from '../../services/room';
 import { WSContext } from '../types';
 import { getPrintFriendlyWSContext } from '../utils';
@@ -25,13 +26,13 @@ export async function handleJoinRoom(ctx: WSContext, joinMessage: WSMessageJoin)
     subscribeToRoomInfo(ctx, payload.roomCode, (roomInfo: Room) => {
         // update session ctx for player to note that game has started
         ctx.isGameStarted = roomInfo.isGameStarted;
+        ctx.isGameOver = roomInfo.isGameOver;
 
         const response: WSMessageRoomUpdated = {
             type: 'room-updated',
             payload: {
                 clientId: ctx.clientId,
                 room: roomInfo,
-                isGameStarted: roomInfo.isGameStarted,
             },
         };
         ws.send(JSON.stringify(response));
@@ -40,6 +41,21 @@ export async function handleJoinRoom(ctx: WSContext, joinMessage: WSMessageJoin)
     const room = await joinRoom(payload.roomCode, ctx.clientId, payload.name);
     const roomRedisKey = getRoomRedisKey(payload.roomCode);
     await redisClient.set(roomRedisKey, JSON.stringify(room));
+}
+
+export async function handleSetReady(ctx: WSContext, message: WSMessageSetReady) {
+    const { clientId, roomCode } = ctx;
+    const { isReady } = message.payload;
+
+    if (!clientId) {
+        throw new Error('Could not find clientId in ctx.');
+    }
+
+    if (!roomCode) {
+        throw new Error('Could not find roomCode in ctx.');
+    }
+
+    await updateClientReadyState({ clientId, roomCode, isReady });
 }
 
 export function handleLeaveRoom(ctx: WSContext) {

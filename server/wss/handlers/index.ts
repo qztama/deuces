@@ -5,11 +5,12 @@ import {
     WSMessagePlayMove,
     WS_ERR_TYPES,
     WSMessageError,
+    WSMessageSetReady,
 } from '../../../shared/wsMessages';
 import { WSContext } from '../types';
 import { handleConnectToGame, handlePlayMove, handleStartGame } from './gameHandlers';
 
-import { handleJoinRoom } from './roomHandlers';
+import { handleJoinRoom, handleSetReady } from './roomHandlers';
 
 export async function handleMessage(ctx: WSContext, data: string) {
     var message = JSON.parse(String(data)) as WSMessage;
@@ -21,6 +22,11 @@ export async function handleMessage(ctx: WSContext, data: string) {
                 const joinMessage = message as WSMessageJoin;
                 ctx.roomCode = joinMessage.payload.roomCode;
                 await handleJoinRoom(ctx, joinMessage);
+                break;
+            }
+            case 'set-ready': {
+                const setReadyMessage = message as WSMessageSetReady;
+                await handleSetReady(ctx, setReadyMessage);
                 break;
             }
             case 'start-game': {

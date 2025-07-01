@@ -7,6 +7,7 @@ import {
     useState,
 } from 'react';
 import { WSMessageMap, WSMessage } from '../../../../../shared/wsMessages';
+import { useWSErrorHandler } from '../hooks/useWSErrorHandler';
 
 const WS_URL = 'ws://localhost:3001';
 
@@ -55,6 +56,8 @@ export const WSContextProvider = ({
     const [connectionStatus, setConnectionStatus] =
         useState<WSContextType['connectionStatus']>('connecting');
 
+    const errorToast = useWSErrorHandler();
+
     useEffect(() => {
         if (socketRef.current) {
             return;
@@ -63,10 +66,17 @@ export const WSContextProvider = ({
         const socket = new WebSocket(WS_URL);
         socketRef.current = socket;
 
+        let unsubscribeWSError: (() => void) | null = null;
         socket.onopen = () => {
             console.log('WebSocket Connected');
             hasConnectedRef.current = true;
             setConnectionStatus('open');
+
+            if (!subscriptionsRef.current.has('error')) {
+                unsubscribeWSError = subscribe('error', ({ type, message }) => {
+                    errorToast({ type, message });
+                });
+            }
         };
 
         socket.onmessage = (event) => {
@@ -100,8 +110,12 @@ export const WSContextProvider = ({
             }
             socketRef.current = null;
             hasConnectedRef.current = false;
+
+            if (unsubscribeWSError) {
+                unsubscribeWSError();
+            }
         };
-    }, []);
+    }, [errorToast]);
 
     const dispatchMessage = (message: WSMessage) => {
         const handlers = subscriptionsRef.current.get(

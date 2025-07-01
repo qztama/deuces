@@ -3,7 +3,7 @@ import { HttpError } from '../../utils/error';
 
 import * as redisService from '../redis';
 import { WSContext } from '../../wss/types';
-import { Card, GameEvent, GameState, HandType, Player, PlayerGameState } from './types';
+import { Card, GameState, Player, PlayerGameState } from './types';
 import {
     dealCards,
     determineTurnOrder,
@@ -22,7 +22,7 @@ export async function getGameState(redisClient: RedisClientType, gameRedisKey: s
     const gameStateData = await redisClient.get(gameRedisKey);
 
     if (!gameStateData) {
-        throw new HttpError(404, 'Room not found.');
+        throw new HttpError(404, 'Game not found.');
     }
 
     return JSON.parse(gameStateData) as GameState;

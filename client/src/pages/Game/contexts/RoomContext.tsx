@@ -6,6 +6,7 @@ interface ConnectedClient {
     id: string;
     name: string;
     isHost: boolean;
+    isReady: boolean;
     status: 'connected' | 'disconnected';
 }
 
@@ -14,6 +15,7 @@ interface RoomContextValue {
     clientId: string;
     connectedClients: ConnectedClient[];
     isGameStarted: boolean;
+    isGameOver: boolean;
 }
 
 const RoomContext = createContext<RoomContextValue | null>(null);
@@ -40,6 +42,7 @@ export const RoomContextProvider = ({
         []
     );
     const [isGameStarted, setIsGameStarted] = useState(false);
+    const [isGameOver, setIsGameOver] = useState(false);
 
     if (!roomCode) {
         throw new Error('Invalid room code');
@@ -58,7 +61,8 @@ export const RoomContextProvider = ({
                 );
                 setClientId(payload.clientId);
                 setConnectedClients(payload.room.connectedClients);
-                setIsGameStarted(payload.isGameStarted);
+                setIsGameStarted(payload.room.isGameStarted);
+                setIsGameOver(payload.room.isGameOver);
             });
 
             sendMessage('join', { roomCode: roomCode!, clientId });
@@ -82,7 +86,13 @@ export const RoomContextProvider = ({
 
     return (
         <RoomContext.Provider
-            value={{ roomCode, clientId, connectedClients, isGameStarted }}
+            value={{
+                roomCode,
+                clientId,
+                connectedClients,
+                isGameStarted,
+                isGameOver,
+            }}
         >
             {children}
         </RoomContext.Provider>
