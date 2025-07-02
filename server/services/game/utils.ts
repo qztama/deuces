@@ -169,7 +169,7 @@ function getHandRep(handType: HandType, move: Card[]): Card {
         return getHighestRankAmongCards(move);
     }
 
-    if (['fullHouse', 'fourPlusOne'].includes(handType)) {
+    if (['fullhouse', 'fourplusone'].includes(handType)) {
         const groupedByRank = new Map();
 
         for (let c of move) {

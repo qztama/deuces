@@ -49,7 +49,6 @@ export const GameContextProvider = ({
     const { subscribe, sendMessage } = useWSContext();
     const { clientId, isGameStarted } = useRoomContext();
 
-    // const isGameOver = winners.length === players.length - 1 || true;
     const isGameOver = winners.length === players.length - 1;
     const curTurnPlayer = players.length
         ? players[turnNumber % players.length]
@@ -146,12 +145,10 @@ export const GameContextProvider = ({
                 setInPlay(newInPlay);
                 setHistory(newHistory);
                 setWinners(
-                    // newWinners
-                    //     .map((id) => players.find((p) => p.id === id))
-                    //     .filter((p): p is ObfuscatedPlayer => Boolean(p?.id))
-                    newPlayers
+                    newWinners
+                        .map((id) => newPlayers.find((p) => p.id === id))
+                        .filter((p): p is ObfuscatedPlayer => Boolean(p?.id))
                 );
-                console.log('newPlayers', newPlayers);
                 setHand((prev) => {
                     if (!prev.length) {
                         // hand not loaded yet so just update

@@ -58,13 +58,17 @@ const Room = () => {
             </Box>
             <Box display="flex" gap="16px" paddingTop="8px">
                 {ownClientInfo?.isHost ? (
-                    <Button onClick={handleStartGame}>Start Game</Button>
+                    <Button variant="outlined" onClick={handleStartGame}>
+                        Start Game
+                    </Button>
                 ) : (
-                    <Button onClick={handleReadyToggle}>
+                    <Button variant="outlined" onClick={handleReadyToggle}>
                         {!ownClientInfo?.isReady ? 'Ready' : 'Unready'}
                     </Button>
                 )}
-                <Button onClick={handleLeaveGame}>Leave Game</Button>
+                <Button variant="outlined" onClick={handleLeaveGame}>
+                    Leave Game
+                </Button>
             </Box>
         </Box>
     );

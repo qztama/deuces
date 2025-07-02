@@ -8,7 +8,7 @@ import { handleLeaveRoom } from './handlers/roomHandlers';
 import { getPrintFriendlyWSContext } from './utils';
 
 export function initWebsocketServer(wssPort: number) {
-    const wss = new WebSocketServer({ port: wssPort }, () => {
+    const wss = new WebSocketServer({ port: wssPort, host: '0.0.0.0' }, () => {
         console.log('Websocket Server Started');
     });
 

@@ -182,7 +182,13 @@ function getNextTurnNumber(curTurnNumber: number, nextPlayers: Player[]): number
         nextTurnNumber++;
     }
 
-    return -1; // TODO: revisit what to do with this when game ends
+    // went full circle which means everyone either passed or has no cards
+    // turn now begins with the next person that has cards
+    while (nextPlayers[nextTurnNumber % totalPlayers].hand.length === 0) {
+        nextTurnNumber++;
+    }
+
+    return nextTurnNumber;
 }
 
 export function getNextGameState(curGameState: GameState, move: Card[]): GameState {
@@ -216,7 +222,7 @@ export function getNextGameState(curGameState: GameState, move: Card[]): GameSta
               hand: move,
               type: moveType,
           };
-    if (players[nextTurnPlayerIdx].id === inPlay?.playerId) {
+    if (nextTurnNumber - turnNumber >= players.length || players[nextTurnPlayerIdx].id === nextInPlay?.playerId) {
         // everyone else passed so we start a new round
         nextInPlay = null;
         nextPlayers.forEach((p) => {
