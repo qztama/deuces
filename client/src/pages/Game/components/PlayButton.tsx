@@ -27,7 +27,7 @@ export const PlayButton = () => {
     );
 
     return (
-        <Tooltip title={disabledMessage}>
+        <Tooltip title={disabledMessage} placement="left-end">
             <Box>{mainButton}</Box>
         </Tooltip>
     );

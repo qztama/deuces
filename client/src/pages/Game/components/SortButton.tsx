@@ -77,7 +77,7 @@ export const SortButton = () => {
     };
 
     return (
-        <Tooltip title="Sort">
+        <Tooltip title="Sort" placement="left-end">
             <Box>
                 <Button
                     startIcon={<Sort fontSize="small" />}

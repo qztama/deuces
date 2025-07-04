@@ -135,6 +135,10 @@ export async function leave(roomCode: string, clientId: string) {
     }
 
     room.connectedClients.splice(matchedClientIdx, 1);
+    if (!room.connectedClients[0].isHost) {
+        // re-assign host if the host left
+        room.connectedClients[0].isHost = true;
+    }
     await redisClient.set(roomRedisKey, JSON.stringify(room));
 }
 

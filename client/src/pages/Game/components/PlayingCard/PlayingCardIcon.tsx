@@ -29,17 +29,19 @@ export const PlayingCardIcon = ({
             display="flex"
             flexDirection="column"
             bgcolor="white"
+            justifyContent="center"
             alignItems="center"
         >
             <Typography
-                fontSize={`${(7 * labelSizeInPx) / 9}px`}
+                fontSize={`${(8 * labelSizeInPx) / 9}px`}
                 color={suitColor}
+                lineHeight={`${(8 * labelSizeInPx) / 9}px`}
             >
-                {rank}
+                {rank === 'T' ? 10 : rank}
             </Typography>
             <SuitIcon
                 suit={suit}
-                size={`${(2 * labelSizeInPx) / 3}px`}
+                size={`${labelSizeInPx}px`}
                 fill={suitColor}
             />
         </Box>

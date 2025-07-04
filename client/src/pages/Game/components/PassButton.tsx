@@ -11,7 +11,7 @@ export const PassButton = () => {
     if (curTurnPlayer?.id !== clientId) {
         disabledMessage = 'Waiting for turn...';
     } else if (!inPlay) {
-        disabledMessage = 'Free turn';
+        disabledMessage = "Can't pass when it's a free turn";
     }
 
     const mainButton = (
@@ -27,7 +27,7 @@ export const PassButton = () => {
     return !disabledMessage ? (
         mainButton
     ) : (
-        <Tooltip title={disabledMessage}>
+        <Tooltip title={disabledMessage} placement="left-end">
             <Box>{mainButton}</Box>
         </Tooltip>
     );

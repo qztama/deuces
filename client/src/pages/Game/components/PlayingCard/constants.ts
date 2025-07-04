@@ -1,4 +1,4 @@
-import { Rank } from '@shared/game';
+import { Rank } from '@shared/game/types';
 
 import JackShield from '../../../../assets/icons/shield.svg?react';
 import QueenCrown from '../../../../assets/icons/queen-crown.svg?react';

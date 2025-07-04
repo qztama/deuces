@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 
 import { Rank, Suit } from '@shared/game/types';
+import { DECK_SIZE } from '@shared/game/constants';
 
 import { GameContextProvider, useGameContext } from './contexts/GameContext';
 import { useRoomContext } from './contexts/RoomContext';
@@ -14,8 +16,10 @@ import { PlayButton } from './components/PlayButton';
 import { PassButton } from './components/PassButton';
 import { SortButton } from './components/SortButton';
 import { GameOverDialog } from './components/GameOverDialog';
+import { HistoryLog } from './components/HistoryLog';
 
 import { PLAYING_CARD_WIDTH } from './constants';
+import { SelectedCardsDisplay } from './components/SelectedCardsDisplay';
 
 const OPPONENT_INFO_POS: Record<
     number,
@@ -31,6 +35,7 @@ export const GameViewContent = () => {
     const { palette } = useTheme();
     const { clientId } = useRoomContext();
     const { players, curTurnPlayer, inPlay } = useGameContext();
+    const [isHistoryLogOpen, setIsHistoryLogOpen] = useState(false);
 
     // inPlay hand width + discard width + gaps
     const IN_PLAY_HAND_WIDTH_IN_PX = 5 * PLAYING_CARD_WIDTH + 8 * 4;
@@ -65,9 +70,12 @@ export const GameViewContent = () => {
             );
         }
     );
+    const cardsInDiscard =
+        DECK_SIZE - players.reduce((acc, p) => acc + p.cardsLeft, 0);
 
     return (
-        <Box position="relative" height="100%">
+        <Box position="relative" height="100%" overflow="hidden">
+            <HistoryLog isOpen={isHistoryLogOpen} />
             <GameOverDialog />
             {/* turn indicator */}
             <Box
@@ -107,7 +115,10 @@ export const GameViewContent = () => {
             >
                 <PlaceholderCard
                     widthInPx={PLAYING_CARD_WIDTH}
-                    label="Discard"
+                    label={`Discard (${cardsInDiscard})`}
+                    onClick={() => {
+                        setIsHistoryLogOpen(!isHistoryLogOpen);
+                    }}
                 />
                 <Box
                     display="flex"
@@ -134,6 +145,18 @@ export const GameViewContent = () => {
             </Box>
 
             {/* player hud */}
+            <Box
+                display="flex"
+                position="fixed"
+                justifyContent="center"
+                sx={{
+                    width: '100%',
+                    bottom: `${PLAYING_CARD_WIDTH + 40}px`,
+                }}
+            >
+                <SelectedCardsDisplay />
+            </Box>
+
             {ownPlayer && (
                 <Box
                     display="flex"

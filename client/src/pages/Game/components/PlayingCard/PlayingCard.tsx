@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { Box, BoxProps, Typography } from '@mui/material';
-import { Rank, Suit } from '@shared/game';
+import { Rank, Suit } from '@shared/game/types';
 
 import { SuitIcon } from '../SuitIcon';
 import {
