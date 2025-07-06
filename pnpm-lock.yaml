@@ -8,11 +8,11 @@ importers:
 
   .: {}
 
-  client:
+  apps/client:
     dependencies:
       '@deuces/shared':
         specifier: workspace:*
-        version: link:../packages/shared
+        version: link:../../packages/shared
       '@dnd-kit/core':
         specifier: ^6.3.1
         version: 6.3.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -99,20 +99,11 @@ importers:
         specifier: ^4.3.0
         version: 4.3.0(rollup@4.44.2)(typescript@5.7.3)(vite@6.3.5(@types/node@24.0.10))
 
-  packages/shared:
-    devDependencies:
-      tsup:
-        specifier: ^8.5.0
-        version: 8.5.0(postcss@8.5.6)(typescript@5.8.3)
-      typescript:
-        specifier: ^5.0.0
-        version: 5.8.3
-
-  server:
+  apps/server:
     dependencies:
       '@deuces/shared':
         specifier: workspace:*
-        version: link:../packages/shared
+        version: link:../../packages/shared
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -164,6 +155,15 @@ importers:
         version: 8.5.0(postcss@8.5.6)(typescript@5.8.3)
       typescript:
         specifier: ^5.8.3
+        version: 5.8.3
+
+  packages/shared:
+    devDependencies:
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(postcss@8.5.6)(typescript@5.8.3)
+      typescript:
+        specifier: ^5.0.0
         version: 5.8.3
 
 packages:
