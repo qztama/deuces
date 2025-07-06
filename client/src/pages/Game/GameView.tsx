@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 
-import { Rank, Suit } from '@shared/game/types';
-import { DECK_SIZE } from '@shared/game/constants';
+import { Rank, Suit } from '@deuces/shared/types';
+import { DECK_SIZE } from '@deuces/shared/constants';
 
 import { GameContextProvider, useGameContext } from './contexts/GameContext';
 import { useRoomContext } from './contexts/RoomContext';

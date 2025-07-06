@@ -1,6 +1,6 @@
 import { Box, Button, Tooltip } from '@mui/material';
 import { Sort } from '@mui/icons-material';
-import { RANKS, SUITS } from '@shared/game/constants';
+import { RANKS, SUITS } from '@deuces/shared/constants';
 
 import { useGameContext } from '../contexts/GameContext';
 

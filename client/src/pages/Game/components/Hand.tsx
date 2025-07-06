@@ -16,7 +16,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Box } from '@mui/material';
 
-import { Card, Rank, Suit } from '@shared/game';
+import { Card, Rank, Suit } from '@deuces/shared/types';
 import { useGameContext } from '../contexts/GameContext';
 import { PLAYING_CARD_WIDTH } from '../constants';
 import { PlayingCard, PlayingCardProps } from './PlayingCard/PlayingCard';

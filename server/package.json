@@ -2,18 +2,14 @@
   "name": "deuces-server",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "build": "rimraf dist && npx tsc",
-    "prestart": "npm run build",
-    "start": "node dist/server/index.js",
-    "preserve": "npm run build",
-    "serve": "npx tsc -w & nodemon --inspect dist/server/index.js ",
+    "build": "tsup",
+    "start": "node dist/index.js",
+    "serve": "tsup src/index.ts --watch --onSuccess='node dist/index.js'",
     "test": "jest"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
-  "description": "",
   "prettier": {
     "tabWidth": 4,
     "useTabs": false,
@@ -25,13 +21,20 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "moduleFileExtensions": ["ts", "js", "json"],
-    "testMatch": ["**/__tests__/**/*.test.ts"],
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.test.ts"
+    ],
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1"
     }
   },
   "dependencies": {
+    "@deuces/shared": "workspace:*",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "redis": "^4.7.0",
@@ -49,6 +52,7 @@
     "nodemon": "^3.1.9",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
+    "tsup": "^8.5.0",
     "typescript": "^5.8.3"
   }
 }

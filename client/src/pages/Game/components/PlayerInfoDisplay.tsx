@@ -2,7 +2,7 @@ import { Box, Avatar, Typography, Tooltip, useTheme } from '@mui/material';
 import TrophyIcon from '../../../assets/icons/trophy.svg?react';
 
 import BlockIcon from '@mui/icons-material/Block';
-import { PlayingCardIcon } from './PlayingCard/PlayingCardIcon';
+// import { PlayingCardIcon } from './PlayingCard/PlayingCardIcon';
 import { useGameContext } from '../contexts/GameContext';
 
 interface PlayerInfoDisplayProps {

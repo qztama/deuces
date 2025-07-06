@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { Rank, Suit } from '@shared/game/types';
+import { Rank, Suit } from '@deuces/shared/types';
 
 import { useGameContext } from '../contexts/GameContext';
 import { PlayingCardIcon } from './PlayingCard/PlayingCardIcon';

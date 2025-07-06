@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
 
-import { Card } from '@shared/game/types';
 import {
+    Card,
     GameEvent,
     ObfuscatedPlayer,
     PlayerGameState,
-} from '../../../../../server/services/game/types';
+} from '@deuces/shared/types';
 import { useWSContext } from './WSContext';
 import { useRoomContext } from './RoomContext';
 

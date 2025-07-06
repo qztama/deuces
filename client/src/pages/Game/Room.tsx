@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import { Box, Button, Typography } from '@mui/material';
 
 import { PlayerCard } from './components/PlayerCard';
-import { useNavigate } from 'react-router';
 import { useWSContext } from './contexts/WSContext';
 import { useRoomContext } from './contexts/RoomContext';
 

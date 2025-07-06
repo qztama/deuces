@@ -6,7 +6,7 @@ import {
     useCallback,
     useState,
 } from 'react';
-import { WSMessageMap, WSMessage } from '../../../../../shared/wsMessages';
+import { WSMessageMap, WSMessage } from '@deuces/shared/types';
 import { useWSErrorHandler } from '../hooks/useWSErrorHandler';
 
 const WS_URL = 'ws://localhost:3001';

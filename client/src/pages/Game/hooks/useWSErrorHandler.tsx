@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
+import toast from 'react-hot-toast';
 import { useTheme } from '@mui/material';
 import { ThunderstormOutlined, CancelOutlined } from '@mui/icons-material';
-import toast from 'react-hot-toast';
-import { WSMessageError, WS_ERR_TYPES } from '@shared/wsMessages';
+import { WSMessageError, WS_ERR_TYPES } from '@deuces/shared/types';
 
 type GameError = {
     type: WSMessageError['payload']['type'];

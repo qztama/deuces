@@ -10,7 +10,7 @@ import {
     useTheme,
     darken,
 } from '@mui/material';
-import { ObfuscatedPlayer } from '@shared/game/types';
+import { ObfuscatedPlayer } from '@deuces/shared/types';
 
 import { useGameContext } from '../contexts/GameContext';
 import { useRoomContext } from '../contexts/RoomContext';

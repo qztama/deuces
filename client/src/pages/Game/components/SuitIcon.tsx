@@ -1,4 +1,4 @@
-import { Suit } from '@shared/game/types';
+import { Suit } from '@deuces/shared/types';
 
 import Diamond from '../../../assets/icons/suit-diamond-fill.svg?react';
 import Club from '../../../assets/icons/suit-club-fill.svg?react';

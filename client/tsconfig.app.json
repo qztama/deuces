@@ -20,13 +20,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-
-    /* Custom */
-    "baseUrl": ".", // Makes paths relative to the project root
-    "paths": {
-      "@shared/*": ["../shared/*"] // Adjust path as needed
-    }
+    "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [{
+    "path": "../packages/shared"
+  }]
 }
