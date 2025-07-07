@@ -1,4 +1,4 @@
-import { Rank, Suit, Card, HandType } from '@deuces/shared/types';
+import { Rank, Suit, Card, HandType } from '@deuces/shared';
 
 export { Rank, Suit, Card, HandType };
 

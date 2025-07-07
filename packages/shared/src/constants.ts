@@ -1,4 +1,4 @@
-import { HandType, Rank, Suit } from './types/game.js';
+import { HandType, Rank, Suit } from './types/game';
 
 export const DECK_SIZE = 52;
 
@@ -18,3 +18,8 @@ export const HAND_TYPES: HandType[] = [
 
 export const HAND_TYPE_MULTIPLER = 1000;
 export const RANK_MULTIPLER = 10;
+
+export const WS_ERR_TYPES = {
+    GENERIC: 'Internal Server Error',
+    INVALID_MOVE: 'Invalid Move',
+} as const;

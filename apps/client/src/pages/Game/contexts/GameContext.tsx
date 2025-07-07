@@ -5,7 +5,7 @@ import {
     GameEvent,
     ObfuscatedPlayer,
     PlayerGameState,
-} from '@deuces/shared/types';
+} from '@deuces/shared';
 import { useWSContext } from './WSContext';
 import { useRoomContext } from './RoomContext';
 

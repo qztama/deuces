@@ -1,6 +1,6 @@
 import { createClient, RedisClientType } from 'redis';
-import { WSContext } from '../wss/types.js';
-import { getPrintFriendlyWSContext } from '../wss/utils.js';
+import { WSContext } from '../wss/types';
+import { getPrintFriendlyWSContext } from '../wss/utils';
 
 let redisClient: RedisClientType;
 let subscriber: RedisClientType;

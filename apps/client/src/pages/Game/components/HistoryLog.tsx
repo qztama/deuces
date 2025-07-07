@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { useGameContext } from '../contexts/GameContext';
-import { GameEvent, ObfuscatedPlayer, Rank, Suit } from '@deuces/shared/types';
+import { GameEvent, ObfuscatedPlayer, Rank, Suit } from '@deuces/shared';
 import { PlayingCardIcon } from './PlayingCard/PlayingCardIcon';
 
 const MotionBox = motion(Box);

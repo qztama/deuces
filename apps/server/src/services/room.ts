@@ -1,8 +1,8 @@
 import { RedisClientType } from 'redis';
 
-import { HttpError } from '../utils/error.js';
-import { WSContext } from '../wss/types.js';
-import * as redisService from './redis.js';
+import { HttpError } from '../utils/error';
+import { WSContext } from '../wss/types';
+import * as redisService from './redis';
 
 export interface Room {
     code: string;

@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { Box, BoxProps, Typography } from '@mui/material';
-import { Rank, Suit } from '@deuces/shared/types';
+import { Rank, Suit } from '@deuces/shared';
 
 import { SuitIcon } from '../SuitIcon';
 import {

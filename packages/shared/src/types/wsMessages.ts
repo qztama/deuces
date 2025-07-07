@@ -1,4 +1,5 @@
-import { Room, Card, PlayerGameState } from './game.js';
+import { WS_ERR_TYPES } from 'constants';
+import { Room, Card, PlayerGameState } from './game';
 
 export interface WSMessageBase {
     type: string;
@@ -62,11 +63,6 @@ export interface WSMessagePlayMove extends WSMessageBase {
 }
 
 // Error
-export const WS_ERR_TYPES = {
-    GENERIC: 'Internal Server Error',
-    INVALID_MOVE: 'Invalid Move',
-} as const;
-
 export interface WSMessageError extends WSMessageBase {
     type: 'error';
     payload: {

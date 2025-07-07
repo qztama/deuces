@@ -1,6 +1,6 @@
-import { WSMessageJoin, WSMessageSetReady, WSMessageRoomUpdated } from '@deuces/shared/types';
-import * as redisService from '../../services/redis.js';
-import { unsubscribeToGame } from '../../services/game/index.js';
+import { WSMessageJoin, WSMessageSetReady, WSMessageRoomUpdated } from '@deuces/shared';
+import * as redisService from '../../services/redis';
+import { unsubscribeToGame } from '../../services/game/index';
 import {
     Room,
     getRoomRedisKey,

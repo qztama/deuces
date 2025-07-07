@@ -1,4 +1,4 @@
-import { Rank } from '@deuces/shared/types';
+import { Rank } from '@deuces/shared';
 
 import JackShield from '../../../../assets/icons/shield.svg?react';
 import QueenCrown from '../../../../assets/icons/queen-crown.svg?react';

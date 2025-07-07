@@ -6,9 +6,9 @@ import {
     WS_ERR_TYPES,
     WSMessageError,
     WSMessageSetReady,
-} from '@deuces/shared/types';
-import { WSContext } from '../types.js';
-import { handleConnectToGame, handlePlayMove, handleStartGame } from './gameHandlers.js';
+} from '@deuces/shared';
+import { WSContext } from '../types';
+import { handleConnectToGame, handlePlayMove, handleStartGame } from './gameHandlers';
 
 import { handleJoinRoom, handleSetReady } from './roomHandlers.js';
 

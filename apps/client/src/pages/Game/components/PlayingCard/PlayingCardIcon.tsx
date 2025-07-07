@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
 
-import { Rank, Suit } from '@deuces/shared/types';
+import { Rank, Suit } from '@deuces/shared';
 
 import { SuitIcon } from '../SuitIcon';
 import { WIDTH_TO_HEIGHT_RATIO } from './constants';

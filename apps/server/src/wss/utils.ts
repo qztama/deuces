@@ -1,4 +1,4 @@
-import { WSContext } from './types.js';
+import { WSContext } from './types';
 
 export function getPrintFriendlyWSContext(ctx: WSContext) {
     const { ws, ...printFriendlyWSContext } = ctx;

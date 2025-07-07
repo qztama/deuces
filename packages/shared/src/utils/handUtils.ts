@@ -1,5 +1,5 @@
-import { Rank, Suit, HandType, Card } from '../types/index.js';
-import { RANKS, RANK_MULTIPLER, SUITS } from '../constants.js';
+import { Rank, Suit, HandType, Card } from '../types';
+import { RANKS, RANK_MULTIPLER, SUITS } from '../constants';
 
 export function checkForStraight(move: Card[]): { isStraight: boolean; rep: Card | null } {
     if (move.length !== 5) {
@@ -82,7 +82,7 @@ export function getHandType(move: Card[]): HandType | null {
     return null;
 }
 
-function getCardScore(card: Card): number {
+export function getCardScore(card: Card): number {
     const rank = card.charAt(0);
     const suit = card.charAt(1);
     return RANKS.findIndex((r) => r === rank) * RANK_MULTIPLER + SUITS.findIndex((s) => s === suit);

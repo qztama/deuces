@@ -1,4 +1,4 @@
-import { checkForStraight, getHandType } from 'utils/handUtils.js';
+import { checkForStraight, getHandType } from '../handUtils';
 
 describe('checkForStraight', () => {
     it('returns false if the hand is not 5 cards', () => {

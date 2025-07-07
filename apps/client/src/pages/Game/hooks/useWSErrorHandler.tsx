@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { useTheme } from '@mui/material';
 import { ThunderstormOutlined, CancelOutlined } from '@mui/icons-material';
-import { WSMessageError, WS_ERR_TYPES } from '@deuces/shared/types';
+import { WSMessageError, WS_ERR_TYPES } from '@deuces/shared';
 
 type GameError = {
     type: WSMessageError['payload']['type'];

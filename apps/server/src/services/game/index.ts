@@ -1,9 +1,9 @@
 import { RedisClientType } from 'redis';
-import { HttpError } from '../../utils/error.js';
+import { HttpError } from '../../utils/error';
 
-import * as redisService from '../redis.js';
-import { WSContext } from '../../wss/types.js';
-import { Card, GameState, Player, PlayerGameState } from './types.js';
+import * as redisService from '../redis';
+import { WSContext } from '../../wss/types';
+import { Card, GameState, Player, PlayerGameState } from './types';
 import {
     dealCards,
     determineTurnOrder,
@@ -11,7 +11,7 @@ import {
     getHandScore,
     getHandType,
     getPlayerGameState,
-} from './utils.js';
+} from './utils';
 
 // Game Connection
 export function getGameRedisKey(roomCode: string) {

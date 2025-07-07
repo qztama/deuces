@@ -1,1 +1,1 @@
-export * from './handUtils.js';
+export * from './handUtils';

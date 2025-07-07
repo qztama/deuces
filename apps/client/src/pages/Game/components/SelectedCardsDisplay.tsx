@@ -1,6 +1,12 @@
 import { Box, Typography } from '@mui/material';
-import { getHandType, getHandRep } from '@deuces/shared/utils';
-import { Rank, Suit, Card, HandType } from '@deuces/shared/types';
+import {
+    Rank,
+    Suit,
+    Card,
+    HandType,
+    getHandType,
+    getHandRep,
+} from '@deuces/shared';
 
 import { useGameContext } from '../contexts/GameContext';
 import { PlayingCardIcon } from './PlayingCard/PlayingCardIcon';

@@ -1,11 +1,11 @@
 import { WebSocketServer } from 'ws';
 import { v7 as uuidv7 } from 'uuid';
 
-import { WSContext } from './types.js';
-import { disconnect as disconnectRoom } from '../services/room.js';
-import { handleMessage } from './handlers/index.js';
-import { handleLeaveRoom } from './handlers/roomHandlers.js';
-import { getPrintFriendlyWSContext } from './utils.js';
+import { WSContext } from './types';
+import { disconnect as disconnectRoom } from '../services/room';
+import { handleMessage } from './handlers/index';
+import { handleLeaveRoom } from './handlers/roomHandlers';
+import { getPrintFriendlyWSContext } from './utils';
 
 export function initWebsocketServer(wssPort: number) {
     const wss = new WebSocketServer({ port: wssPort, host: '0.0.0.0' }, () => {

@@ -1,10 +1,10 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 
-import { initRedisClient } from './services/redis.js';
-import { errorHandler } from './utils/error.js';
-import { create as createRoom } from './services/room.js';
-import { initWebsocketServer } from './wss/index.js';
+import { initRedisClient } from './services/redis';
+import { errorHandler } from './utils/error';
+import { create as createRoom } from './services/room';
+import { initWebsocketServer } from './wss/index';
 
 const WSS_PORT = 3001;
 

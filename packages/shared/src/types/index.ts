@@ -1,2 +1,2 @@
-export * from './game.js';
-export * from './wsMessages.js';
+export * from './game';
+export * from './wsMessages';
