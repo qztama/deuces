@@ -16,7 +16,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Box } from '@mui/material';
 
-import { Card, Rank, Suit } from '@deuces/shared/types';
+import { Card, Rank, Suit } from '@deuces/shared';
 import { useGameContext } from '../contexts/GameContext';
 import { PLAYING_CARD_WIDTH } from '../constants';
 import { PlayingCard, PlayingCardProps } from './PlayingCard/PlayingCard';
@@ -49,7 +49,6 @@ export const Hand = () => {
                 position: 'relative',
                 height: '180px',
                 width: `${totalWidth}px`,
-                // left: `calc(50% - ${centerOffset}px`,
             }}
         >
             <div

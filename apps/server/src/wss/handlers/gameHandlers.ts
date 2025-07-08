@@ -1,4 +1,4 @@
-import { WSMessageGameUpdated, PlayerGameState } from '@deuces/shared/types';
+import { WSMessageGameUpdated, PlayerGameState } from '@deuces/shared';
 import {
     getGameRedisKey,
     getGameState,

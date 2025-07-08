@@ -21,6 +21,7 @@ export function getPlayerGameState(clientId: string, gameState: GameState): Play
                 name: curPlayer.name,
                 cardsLeft: curPlayer.hand.length,
                 hasPassed: curPlayer.hasPassed,
+                middleCard: curPlayer.middleCard,
             });
             return acc;
         }, [] as ObfuscatedPlayer[]),

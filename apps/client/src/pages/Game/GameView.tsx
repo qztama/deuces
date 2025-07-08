@@ -64,6 +64,7 @@ export const GameViewContent = () => {
                         cardsLeft={curOpponent.cardsLeft}
                         hasPassed={curOpponent.hasPassed}
                         isTurn={curTurnPlayer?.id === curOpponent.id}
+                        middleCard={curOpponent.middleCard?.[0]}
                     />
                 </Box>
             );
@@ -174,6 +175,7 @@ export const GameViewContent = () => {
                             cardsLeft={ownPlayer.cardsLeft}
                             hasPassed={false}
                             isTurn={curTurnPlayer?.id === ownPlayer.id}
+                            middleCard={ownPlayer.middleCard?.[0]}
                         />
                     </Box>
                     <Hand />
