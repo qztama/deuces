@@ -1,14 +1,1 @@
-import { R as Rank, S as Suit, H as HandType } from './game-OipAfyzY.js';
-
-declare const DECK_SIZE = 52;
-declare const RANKS: Rank[];
-declare const SUITS: Suit[];
-declare const HAND_TYPES: HandType[];
-declare const HAND_TYPE_MULTIPLER = 1000;
-declare const RANK_MULTIPLER = 10;
-declare const WS_ERR_TYPES: {
-    readonly GENERIC: "Internal Server Error";
-    readonly INVALID_MOVE: "Invalid Move";
-};
-
-export { DECK_SIZE, HAND_TYPES, HAND_TYPE_MULTIPLER, RANKS, RANK_MULTIPLER, SUITS, WS_ERR_TYPES };
+export { i as AVATAR_OPTIONS, D as DECK_SIZE, f as HAND_TYPES, g as HAND_TYPE_MULTIPLER, d as RANKS, h as RANK_MULTIPLER, e as SUITS, W as WS_ERR_TYPES } from './constants-7LRIG9mB.js';

@@ -91,9 +91,9 @@ const getDesignTokens = (mode: 'light' | 'dark'): ThemeOptions => ({
     },
     typography: {
         fontFamily: `'Inter', 'Nunito', sans-serif`,
-        h1: { fontWeight: 700 },
-        h2: { fontWeight: 600 },
-        h3: { fontWeight: 500 },
+        h1: { fontWeight: 600, fontSize: '32px' },
+        h2: { fontWeight: 500, fontSize: '28px' },
+        h3: { fontWeight: 400, fontSize: '24px' },
         body1: { fontSize: '1rem' },
         body2: { fontSize: '0.875rem' },
     },

@@ -1,4 +1,3 @@
-// App.tsx
 import React, { useMemo, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router';
 import { ThemeProvider, CssBaseline, Box } from '@mui/material';
@@ -10,6 +9,7 @@ import { GameLayout } from './pages/Game/GameLayout';
 import { GameInterstitial } from './pages/Game/GameInterstitial';
 import { GameView } from './pages/Game/GameView';
 import Room from './pages/Game/Room';
+import Settings from './pages/Settings/Settings';
 
 const App: React.FC = () => {
     const [mode, setMode] = useState<'light' | 'dark'>('dark');
@@ -37,6 +37,7 @@ const App: React.FC = () => {
                                     <Route path="game" element={<GameView />} />
                                 </Route>
                             </Route>
+                            <Route path="/settings" element={<Settings />} />
                         </Routes>
                     </Box>
                 </Box>

@@ -20,6 +20,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/constants.ts
 var constants_exports = {};
 __export(constants_exports, {
+  AVATAR_OPTIONS: () => AVATAR_OPTIONS,
   DECK_SIZE: () => DECK_SIZE,
   HAND_TYPES: () => HAND_TYPES,
   HAND_TYPE_MULTIPLER: () => HAND_TYPE_MULTIPLER,
@@ -49,8 +50,10 @@ var WS_ERR_TYPES = {
   GENERIC: "Internal Server Error",
   INVALID_MOVE: "Invalid Move"
 };
+var AVATAR_OPTIONS = ["ASTRO", "ASTROBEAR", "GORILLA", "MOUSE"];
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  AVATAR_OPTIONS,
   DECK_SIZE,
   HAND_TYPES,
   HAND_TYPE_MULTIPLER,

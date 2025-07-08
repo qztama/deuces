@@ -20,6 +20,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
+  AVATAR_OPTIONS: () => AVATAR_OPTIONS,
   DECK_SIZE: () => DECK_SIZE,
   HAND_TYPES: () => HAND_TYPES,
   HAND_TYPE_MULTIPLER: () => HAND_TYPE_MULTIPLER,
@@ -55,6 +56,7 @@ var WS_ERR_TYPES = {
   GENERIC: "Internal Server Error",
   INVALID_MOVE: "Invalid Move"
 };
+var AVATAR_OPTIONS = ["ASTRO", "ASTROBEAR", "GORILLA", "MOUSE"];
 
 // src/utils/handUtils.ts
 function checkForStraight(move) {
@@ -154,6 +156,7 @@ function getHandRep(handType, move) {
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  AVATAR_OPTIONS,
   DECK_SIZE,
   HAND_TYPES,
   HAND_TYPE_MULTIPLER,

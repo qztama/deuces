@@ -1,3 +1,5 @@
+import { AVATAR_OPTIONS } from 'constants';
+
 export type Rank = 'A' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | 'T' | 'J' | 'Q' | 'K';
 export type Suit = 'D' | 'C' | 'H' | 'S';
 export type Card = `${Rank}${Suit}`;
@@ -61,3 +63,5 @@ export interface Room {
     isGameStarted: boolean;
     isGameOver: boolean;
 }
+
+export type AvatarOptions = (typeof AVATAR_OPTIONS)[number];

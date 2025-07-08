@@ -1,10 +1,10 @@
-import { Box, Badge, Avatar, Typography, useTheme } from '@mui/material';
+import { Box, Badge, Typography, useTheme } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { Card, Rank, Suit } from '@deuces/shared';
 
 import TrophyIcon from '../../../assets/icons/trophy.svg?react';
-import AstroAvatar from '../../../assets/avatars/astro.svg?react';
+import { GameAvatar } from '../../../components/GameAvatar';
 import { PlayingCardIcon } from './PlayingCard/PlayingCardIcon';
 import { useGameContext } from '../contexts/GameContext';
 import { PlayingCardBack } from './PlayingCard/PlayingCardBack';
@@ -82,9 +82,7 @@ export const PlayerInfoDisplay = ({
                             },
                         }}
                     >
-                        <Avatar sx={{ width: '64px', height: '64px' }}>
-                            <AstroAvatar />
-                        </Avatar>
+                        <GameAvatar name="ASTRO" sizeInPx={64} />
                     </Badge>
                 </Box>
                 <Box>

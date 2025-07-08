@@ -23,3 +23,5 @@ export const WS_ERR_TYPES = {
     GENERIC: 'Internal Server Error',
     INVALID_MOVE: 'Invalid Move',
 } as const;
+
+export const AVATAR_OPTIONS = ['ASTRO', 'ASTROBEAR', 'GORILLA', 'MOUSE'] as const;
