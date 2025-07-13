@@ -3,7 +3,7 @@ import { Toaster, toast } from 'react-hot-toast';
 
 import { SettingsForm } from './components/SettingsForm';
 
-const Settings = () => {
+export const Settings = () => {
     const { palette } = useTheme();
 
     const handleSaveSuccess = () => {
@@ -29,5 +29,3 @@ const Settings = () => {
         </>
     );
 };
-
-export default Settings;

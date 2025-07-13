@@ -6,7 +6,7 @@ import { PlayerCard } from './components/PlayerCard';
 import { useWSContext } from './contexts/WSContext';
 import { useRoomContext } from './contexts/RoomContext';
 
-const Room = () => {
+export const Room = () => {
     const { clientId, roomCode, connectedClients, isGameStarted, isGameOver } =
         useRoomContext();
     const navigate = useNavigate();
@@ -73,5 +73,3 @@ const Room = () => {
         </Box>
     );
 };
-
-export default Room;

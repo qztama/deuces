@@ -15,18 +15,18 @@ import {
 import {
     loadSettingsFromLS,
     updateSettingsInLS,
-} from '../../../utils/settings/settings';
+} from '../../../../utils/settings/settings';
 import {
     SORT_ORDER_BY,
     SORT_ORDER_DIR,
     READABLE_SORT_ORDER_DIR,
     READABLE_SORT_ORDER_BY,
-} from '../../../utils/settings/constants';
+} from '../../../../utils/settings/constants';
 import {
     SettingsSchema,
     settingsSaveSchema,
-} from '../../../utils/settings/schema';
-import { AvatarSelector } from '../../../components/AvatarSelector';
+} from '../../../../utils/settings/schema';
+import { AvatarSelector } from '../../../../components/AvatarSelector';
 
 interface SettingsFormProps {
     onSaveSuccess?: () => void;

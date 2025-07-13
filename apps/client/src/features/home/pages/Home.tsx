@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router';
 import { Box, Button, Input } from '@mui/material';
 
-function Home() {
+export const Home = () => {
     const navigate = useNavigate();
 
     const handleCreateGame = async () => {
@@ -24,6 +24,4 @@ function Home() {
             </Box>
         </>
     );
-}
-
-export default Home;
+};
