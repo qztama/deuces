@@ -3,22 +3,25 @@ import { Box, Typography, useTheme } from '@mui/material';
 
 import { Rank, Suit, DECK_SIZE } from '@deuces/shared';
 
-import { GameContextProvider, useGameContext } from './contexts/GameContext';
-import { useRoomContext } from './contexts/RoomContext';
+import { useRoomContext } from '../../contexts/RoomContext';
+import {
+    GameContextProvider,
+    useGameContext,
+} from '../../contexts/GameContext';
 
 import { PlayerInfoDisplay } from './components/PlayerInfoDisplay';
-import { PlayingCard } from './components/PlayingCard/PlayingCard';
-import { PlaceholderCard } from './components/PlayingCard/PlaceholderCard';
-import { WIDTH_TO_HEIGHT_RATIO } from './components/PlayingCard/constants';
+import { PlayingCard } from '../../components/PlayingCard/PlayingCard';
+import { PlaceholderCard } from '../../components/PlayingCard/PlaceholderCard';
+import { WIDTH_TO_HEIGHT_RATIO } from '../../components/PlayingCard/constants';
 import { Hand } from './components/Hand';
 import { PlayButton } from './components/PlayButton';
 import { PassButton } from './components/PassButton';
 import { SortButton } from './components/SortButton';
 import { GameOverDialog } from './components/GameOverDialog';
 import { HistoryLog } from './components/HistoryLog';
+import { SelectedCardsDisplay } from './components/SelectedCardsDisplay';
 
 import { PLAYING_CARD_WIDTH } from './constants';
-import { SelectedCardsDisplay } from './components/SelectedCardsDisplay';
 
 const OPPONENT_INFO_POS: Record<
     number,
@@ -30,7 +33,7 @@ const OPPONENT_INFO_POS: Record<
     ],
 };
 
-export const GameViewContent = () => {
+const GameViewContent = () => {
     const { palette } = useTheme();
     const { clientId } = useRoomContext();
     const { players, curTurnPlayer, inPlay } = useGameContext();
@@ -197,8 +200,10 @@ export const GameViewContent = () => {
     );
 };
 
-export const GameView = () => (
-    <GameContextProvider>
-        <GameViewContent />
-    </GameContextProvider>
-);
+export const GameView = () => {
+    return (
+        <GameContextProvider>
+            <GameViewContent />
+        </GameContextProvider>
+    );
+};

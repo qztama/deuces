@@ -1,8 +1,8 @@
 import { Outlet } from 'react-router';
 import { Toaster } from 'react-hot-toast';
 
-import { WSContextProvider } from './contexts/WSContext';
-import { RoomContextProvider } from './contexts/RoomContext';
+import { WSContextProvider } from '../contexts/WSContext';
+import { RoomContextProvider } from '../contexts/RoomContext';
 
 export const GameLayout = () => {
     return (

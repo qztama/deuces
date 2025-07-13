@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router';
 import { Box, Button, Typography } from '@mui/material';
 
 import { PlayerCard } from './components/PlayerCard';
-import { useWSContext } from './contexts/WSContext';
-import { useRoomContext } from './contexts/RoomContext';
+import { useWSContext } from '../../contexts/WSContext';
+import { useRoomContext } from '../../contexts/RoomContext';
 
 export const Room = () => {
     const { clientId, roomCode, connectedClients, isGameStarted, isGameOver } =

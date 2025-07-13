@@ -1,15 +1,8 @@
 import { Box, Typography } from '@mui/material';
-import {
-    Rank,
-    Suit,
-    Card,
-    HandType,
-    getHandType,
-    getHandRep,
-} from '@deuces/shared';
+import { Rank, Suit, Card, getHandType, getHandRep } from '@deuces/shared';
 
-import { useGameContext } from '../contexts/GameContext';
-import { PlayingCardIcon } from './PlayingCard/PlayingCardIcon';
+import { useGameContext } from '../../../contexts/GameContext';
+import { PlayingCardIcon } from '../../../components/PlayingCard/PlayingCardIcon';
 
 const READABLE_SUIT_NAMES: Record<Suit, string> = {
     D: 'Diamonds',

@@ -1,7 +1,7 @@
 import { Button, Tooltip, Box } from '@mui/material';
 import { PlayArrow } from '@mui/icons-material';
-import { useGameContext } from '../contexts/GameContext';
-import { useRoomContext } from '../contexts/RoomContext';
+import { useGameContext } from '../../../contexts/GameContext';
+import { useRoomContext } from '../../../contexts/RoomContext';
 
 export const PlayButton = () => {
     const { inPlay, selectedCards, curTurnPlayer, makeMove } = useGameContext();

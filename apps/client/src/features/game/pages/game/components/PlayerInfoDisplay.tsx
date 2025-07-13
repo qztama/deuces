@@ -3,12 +3,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import { AvatarOptions, Card, Rank, Suit } from '@deuces/shared';
 
-import TrophyIcon from '../../../assets/icons/trophy.svg?react';
-import { GameAvatar } from '../../../components/GameAvatar';
-import { useRoomContext } from '../contexts/RoomContext';
-import { useGameContext } from '../contexts/GameContext';
-import { PlayingCardIcon } from './PlayingCard/PlayingCardIcon';
-import { PlayingCardBack } from './PlayingCard/PlayingCardBack';
+import TrophyIcon from '@/assets/icons/trophy.svg?react';
+import { GameAvatar } from '@/components/GameAvatar';
+import { useRoomContext } from '../../../contexts/RoomContext';
+import { useGameContext } from '../../../contexts/GameContext';
+import { PlayingCardIcon } from '../../../components/PlayingCard/PlayingCardIcon';
+import { PlayingCardBack } from '../../../components/PlayingCard/PlayingCardBack';
 
 interface PlayerInfoDisplayProps {
     id: string;

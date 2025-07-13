@@ -1,7 +1,8 @@
 import { Button, Tooltip, Box } from '@mui/material';
 import { Block } from '@mui/icons-material';
-import { useGameContext } from '../contexts/GameContext';
-import { useRoomContext } from '../contexts/RoomContext';
+
+import { useRoomContext } from '../../../contexts/RoomContext';
+import { useGameContext } from '../../../contexts/GameContext';
 
 export const PassButton = () => {
     const { clientId } = useRoomContext();

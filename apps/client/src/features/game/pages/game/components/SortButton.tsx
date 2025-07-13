@@ -2,7 +2,7 @@ import { Box, Button, Tooltip } from '@mui/material';
 import { Sort } from '@mui/icons-material';
 import { RANKS, SUITS } from '@deuces/shared';
 
-import { useGameContext } from '../contexts/GameContext';
+import { useGameContext } from '../../../contexts/GameContext';
 
 const SORT_ORDER_BY = ['rank', 'suit'] as const;
 const SORT_ORDER_DIR = ['htl', 'lth'] as const;

@@ -2,9 +2,9 @@ import { useEffect, useRef } from 'react';
 import { Box, Typography } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import { useGameContext } from '../contexts/GameContext';
 import { GameEvent, ObfuscatedPlayer, Rank, Suit } from '@deuces/shared';
-import { PlayingCardIcon } from './PlayingCard/PlayingCardIcon';
+import { useGameContext } from '../../../contexts/GameContext';
+import { PlayingCardIcon } from '../../../components/PlayingCard/PlayingCardIcon';
 
 const MotionBox = motion(Box);
 

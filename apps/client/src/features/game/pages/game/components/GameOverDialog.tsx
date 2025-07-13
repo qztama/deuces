@@ -12,8 +12,8 @@ import {
 } from '@mui/material';
 import { ObfuscatedPlayer } from '@deuces/shared';
 
-import { useGameContext } from '../contexts/GameContext';
-import { useRoomContext } from '../contexts/RoomContext';
+import { useRoomContext } from '../../../contexts/RoomContext';
+import { useGameContext } from '../../../contexts/GameContext';
 
 export const GameOverDialog = () => {
     const navigate = useNavigate();

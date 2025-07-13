@@ -2,10 +2,10 @@ import { Routes, Route } from 'react-router';
 
 import { Home as HomePage } from '../features/home/pages/Home';
 import { HowToPlay as HowToPlayPage } from '../features/home/pages/HowToPlay';
-import { GameLayout } from '../pages/Game/GameLayout';
-import { GameInterstitial } from '../pages/Game/GameInterstitial';
-import { Room } from '../pages/Game/Room';
-import { GameView } from '../pages/Game/GameView';
+import { GameLayout } from '@/features/game/components/GameLayout';
+import { GameInterstitial } from '@/features/game/components/GameInterstitial';
+import { Room } from '../features/game/pages/room/Room';
+import { GameView } from '../features/game/pages/game/GameView';
 import { Settings } from '../features/settings/pages/Settings';
 
 import { PATHS } from './routes';

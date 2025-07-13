@@ -1,8 +1,9 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router';
+
+import { SettingsSchema } from '@/utils/settings/schema';
+import { loadSettingsFromLS } from '@/utils/settings/settings';
 import { useWSContext } from './WSContext';
-import { SettingsSchema } from '../../../utils/settings/schema';
-import { loadSettingsFromLS } from '../../../utils/settings/settings';
 
 interface ConnectedClient {
     id: string;

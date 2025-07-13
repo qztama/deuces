@@ -1,8 +1,8 @@
 import { Outlet } from 'react-router';
-import { useWSContext } from './contexts/WSContext';
+import { useWSContext } from '../contexts/WSContext';
 
-import { useRoomContext } from './contexts/RoomContext';
-import { IdentifierSelectorDialog } from './components/IdentifierSelectorDialog';
+import { useRoomContext } from '../contexts/RoomContext';
+import { IdentifierSelectorDialog } from './IdentifierSelectorDialog';
 
 export const GameInterstitial = () => {
     const { connectionStatus } = useWSContext();
