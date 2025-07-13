@@ -1,4 +1,4 @@
-import { getHandType, checkForStraight, getHandRep, getCardScore } from '@deuces/shared';
+import { getHandType, checkForStraight, getHandRep, getCardScore, AvatarOptions } from '@deuces/shared';
 import { Card, GameState, ObfuscatedPlayer, PlayerGameState, Player, HandType, Rank, Suit } from './types';
 import { RANKS, SUITS, HAND_TYPES } from './constants';
 
@@ -15,13 +15,14 @@ export function getPlayerGameState(clientId: string, gameState: GameState): Play
     return {
         id: clientId,
         hand: curPlayer.hand,
-        players: gameState.players.reduce((acc, curPlayer) => {
+        players: gameState.players.reduce((acc, p) => {
             acc.push({
-                id: curPlayer.id,
-                name: curPlayer.name,
-                cardsLeft: curPlayer.hand.length,
-                hasPassed: curPlayer.hasPassed,
-                middleCard: curPlayer.middleCard,
+                id: p.id,
+                name: p.name,
+                avatar: p.avatar,
+                cardsLeft: p.hand.length,
+                hasPassed: p.hasPassed,
+                middleCard: p.middleCard,
             });
             return acc;
         }, [] as ObfuscatedPlayer[]),

@@ -61,6 +61,7 @@ export const GameViewContent = () => {
                     <PlayerInfoDisplay
                         id={curOpponent.id}
                         name={curOpponent.name}
+                        avatar={curOpponent.avatar}
                         cardsLeft={curOpponent.cardsLeft}
                         hasPassed={curOpponent.hasPassed}
                         isTurn={curTurnPlayer?.id === curOpponent.id}
@@ -172,6 +173,7 @@ export const GameViewContent = () => {
                         <PlayerInfoDisplay
                             id={ownPlayer.id}
                             name={ownPlayer.name}
+                            avatar={ownPlayer.avatar}
                             cardsLeft={ownPlayer.cardsLeft}
                             hasPassed={false}
                             isTurn={curTurnPlayer?.id === ownPlayer.id}

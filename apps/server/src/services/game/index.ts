@@ -12,6 +12,7 @@ import {
     getHandType,
     getPlayerGameState,
 } from './utils';
+import { AvatarOptions } from '@deuces/shared';
 
 // Game Connection
 export function getGameRedisKey(roomCode: string) {
@@ -51,24 +52,26 @@ export function unsubscribeToGame(ctx: WSContext, roomCode: string) {
 }
 
 // Gameplay
-export function initGame(clients: { id: string; name: string }[]): GameState {
+export function initGame(clients: { id: string; name: string; avatar: AvatarOptions }[]): GameState {
     if (![3, 4].includes(clients.length)) {
         throw new Error(`Error initializing game: invalid number of players found.`);
     }
 
     const shuffledCards = generateShuffledDeck();
     const { hands, leftOver } = dealCards(shuffledCards, clients.length as 3 | 4);
-    const players = clients.map(({ id, name }, idx) => {
+    const players = clients.map(({ id, name, avatar }, idx) => {
         const curPlayerHand = hands[idx];
         const hasDiamondThree = curPlayerHand.some((card) => card === '3D');
 
-        return {
+        const formattedPlayer: Player = {
             id,
             name,
+            avatar,
             hand: hasDiamondThree ? curPlayerHand.concat(leftOver) : curPlayerHand,
             hasPassed: false,
             middleCard: hasDiamondThree ? leftOver : undefined,
-        } as Player;
+        };
+        return formattedPlayer;
     });
     const orderedPlayers = determineTurnOrder(players);
 

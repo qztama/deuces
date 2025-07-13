@@ -40,7 +40,7 @@ export async function handleStartGame(ctx: WSContext) {
     }
 
     const gameRedisKey = getGameRedisKey(roomCode);
-    const gameState = initGame(roomInfo.connectedClients.map(({ id, name }) => ({ id, name })));
+    const gameState = initGame(roomInfo.connectedClients.map(({ id, name, avatar }) => ({ id, name, avatar })));
 
     // store the game and notify players that the game is ready
     await redisClient.set(gameRedisKey, JSON.stringify(gameState));

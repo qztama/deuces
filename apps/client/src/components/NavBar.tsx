@@ -1,13 +1,14 @@
-import { Box, useTheme, Typography, Link, Switch } from '@mui/material';
+import { useNavigate } from 'react-router';
+import { Box, useTheme, Typography, Link, Button } from '@mui/material';
+import { Settings as SettingsIcon } from '@mui/icons-material';
+
 import Logo from '../assets/Logo.svg?react';
 
-interface NavBarProps {
-    mode: 'light' | 'dark';
-    toggleTheme: () => void;
-}
+interface NavBarProps {}
 
-export const NavBar = ({ mode, toggleTheme }: NavBarProps) => {
+export const NavBar = (_props: NavBarProps) => {
     const theme = useTheme();
+    const navigate = useNavigate();
 
     return (
         <Box
@@ -24,7 +25,7 @@ export const NavBar = ({ mode, toggleTheme }: NavBarProps) => {
                 p: 1,
             }}
         >
-            {/* Left content (e.g. logo) */}
+            {/* logo */}
             <Link href="/" underline="none" sx={{ display: 'inline-block' }}>
                 <Box display="flex" gap={2} alignItems="center">
                     <Logo width="60px" height="60px" />
@@ -33,16 +34,13 @@ export const NavBar = ({ mode, toggleTheme }: NavBarProps) => {
                     </Typography>
                 </Box>
             </Link>
-            <Switch
-                value={mode === 'light'}
-                onChange={toggleTheme}
-                slotProps={{
-                    input: {
-                        'aria-label':
-                            mode === 'light' ? 'Light Mode' : 'Dark Mode',
-                    },
+            <Button
+                onClick={() => {
+                    navigate('/settings');
                 }}
-            />
+            >
+                <SettingsIcon />
+            </Button>
         </Box>
     );
 };

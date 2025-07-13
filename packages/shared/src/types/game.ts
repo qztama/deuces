@@ -17,6 +17,7 @@ export type HandType =
 export interface Player {
     id: string;
     name: string;
+    avatar: AvatarOptions;
     hand: Card[];
     hasPassed: boolean;
     middleCard?: Card[];
@@ -51,11 +52,14 @@ export interface PlayerGameState extends Pick<GameState, 'inPlay' | 'turnNumber'
     players: ObfuscatedPlayer[];
 }
 
+export type AvatarOptions = (typeof AVATAR_OPTIONS)[number];
+
 export interface Room {
     code: string;
     connectedClients: {
         id: string;
         name: string;
+        avatar: AvatarOptions;
         isHost: boolean;
         isReady: boolean;
         status: 'connected' | 'disconnected';
@@ -63,5 +67,3 @@ export interface Room {
     isGameStarted: boolean;
     isGameOver: boolean;
 }
-
-export type AvatarOptions = (typeof AVATAR_OPTIONS)[number];

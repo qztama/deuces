@@ -3,19 +3,7 @@ import { RedisClientType } from 'redis';
 import { HttpError } from '../utils/error';
 import { WSContext } from '../wss/types';
 import * as redisService from './redis';
-
-export interface Room {
-    code: string;
-    connectedClients: {
-        id: string;
-        name: string;
-        isHost: boolean;
-        isReady: boolean;
-        status: 'connected' | 'disconnected';
-    }[];
-    isGameStarted: boolean;
-    isGameOver: boolean;
-}
+import { AvatarOptions, Room } from '@deuces/shared';
 
 const alphabet = 'abcdefghijklmnopqrstuvwxyz';
 
@@ -44,6 +32,12 @@ export async function getRoomInfo(redisClient: RedisClientType, roomRedisKey: st
     return JSON.parse(roomData) as Room;
 }
 
+export async function getRoomInfoByRoomCode(roomCode: string): Promise<Room> {
+    const redisClient = redisService.getClient();
+    const roomRedisKey = getRoomRedisKey(roomCode);
+    return getRoomInfo(redisClient, roomRedisKey);
+}
+
 export async function create() {
     const redisClient = redisService.getClient();
 
@@ -67,7 +61,7 @@ export async function create() {
     return roomCode;
 }
 
-export async function join(roomCode: string, clientId: string, name?: string): Promise<Room> {
+export async function join(roomCode: string, name: string, avatar: AvatarOptions, clientId: string): Promise<Room> {
     const redisClient = redisService.getClient();
     const roomRedisKey = getRoomRedisKey(roomCode);
 
@@ -89,7 +83,8 @@ export async function join(roomCode: string, clientId: string, name?: string): P
 
     room.connectedClients.push({
         id: clientId,
-        name: name ?? `Player ${room.connectedClients.length + 1}`,
+        name: name,
+        avatar: avatar,
         isHost: room.connectedClients.length === 0,
         isReady: false,
         status: 'connected',
@@ -135,7 +130,7 @@ export async function leave(roomCode: string, clientId: string) {
     }
 
     room.connectedClients.splice(matchedClientIdx, 1);
-    if (!room.connectedClients[0].isHost) {
+    if (room.connectedClients.length && !room.connectedClients[0]?.isHost) {
         // re-assign host if the host left
         room.connectedClients[0].isHost = true;
     }

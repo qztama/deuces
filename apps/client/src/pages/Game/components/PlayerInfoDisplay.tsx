@@ -1,17 +1,19 @@
 import { Box, Badge, Typography, useTheme } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import { Card, Rank, Suit } from '@deuces/shared';
+import { AvatarOptions, Card, Rank, Suit } from '@deuces/shared';
 
 import TrophyIcon from '../../../assets/icons/trophy.svg?react';
 import { GameAvatar } from '../../../components/GameAvatar';
-import { PlayingCardIcon } from './PlayingCard/PlayingCardIcon';
+import { useRoomContext } from '../contexts/RoomContext';
 import { useGameContext } from '../contexts/GameContext';
+import { PlayingCardIcon } from './PlayingCard/PlayingCardIcon';
 import { PlayingCardBack } from './PlayingCard/PlayingCardBack';
 
 interface PlayerInfoDisplayProps {
     id: string;
-    name?: string;
+    name: string;
+    avatar: AvatarOptions;
     cardsLeft: number;
     hasPassed: boolean;
     isTurn: boolean;
@@ -21,16 +23,22 @@ interface PlayerInfoDisplayProps {
 export const PlayerInfoDisplay = ({
     id,
     name,
+    avatar,
     cardsLeft,
     hasPassed,
     isTurn,
     middleCard,
 }: PlayerInfoDisplayProps) => {
     const { palette } = useTheme();
+    const { connectedClients } = useRoomContext();
     const { winners } = useGameContext();
 
+    const isConnected =
+        connectedClients.find(
+            ({ id: connectedClientId }) => connectedClientId === id
+        )?.status === 'connected';
+    const connnectionStatusColor = isConnected ? 'success' : 'error';
     const borderColor = isTurn ? palette.primary.main : palette.secondary.main;
-
     const trophyColor = (() => {
         const placing = winners.findIndex((p) => p.id === id);
         const rankColors = [
@@ -65,7 +73,7 @@ export const PlayerInfoDisplay = ({
                     paddingBottom="8px"
                 >
                     <Badge
-                        color="success"
+                        color={connnectionStatusColor}
                         overlap="circular"
                         anchorOrigin={{
                             vertical: 'bottom',
@@ -82,7 +90,7 @@ export const PlayerInfoDisplay = ({
                             },
                         }}
                     >
-                        <GameAvatar name="ASTRO" sizeInPx={64} />
+                        <GameAvatar name={avatar} sizeInPx={64} />
                     </Badge>
                 </Box>
                 <Box>

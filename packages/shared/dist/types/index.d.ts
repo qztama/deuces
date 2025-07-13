@@ -1,5 +1,5 @@
-import { c as Room, b as PlayerGameState, C as Card, W as WS_ERR_TYPES } from '../constants-7LRIG9mB.js';
-export { A as AvatarOptions, G as GameEvent, a as GameState, H as HandType, O as ObfuscatedPlayer, P as Player, R as Rank, S as Suit } from '../constants-7LRIG9mB.js';
+import { A as AvatarOptions, c as Room, b as PlayerGameState, C as Card, W as WS_ERR_TYPES } from '../constants-Cc9sx8d2.js';
+export { G as GameEvent, a as GameState, H as HandType, O as ObfuscatedPlayer, P as Player, R as Rank, S as Suit } from '../constants-Cc9sx8d2.js';
 
 interface WSMessageBase {
     type: string;
@@ -13,7 +13,8 @@ interface WSMessageJoin extends WSMessageBase {
     payload: {
         roomCode: string;
         clientId?: string;
-        name?: string;
+        name: string;
+        avatar: AvatarOptions;
     };
 }
 interface WSMessageSetReady extends WSMessageBase {
@@ -65,4 +66,4 @@ type MessageMap<T extends {
 };
 type WSMessageMap = MessageMap<WSMessage>;
 
-export { Card, PlayerGameState, Room, type WSMessage, type WSMessageBase, type WSMessageConnectToGame, type WSMessageConnected, type WSMessageError, type WSMessageGameUpdated, type WSMessageJoin, type WSMessageLeave, type WSMessageMap, type WSMessagePlayMove, type WSMessageRoomUpdated, type WSMessageSetReady, type WSMessageStartGame };
+export { AvatarOptions, Card, PlayerGameState, Room, type WSMessage, type WSMessageBase, type WSMessageConnectToGame, type WSMessageConnected, type WSMessageError, type WSMessageGameUpdated, type WSMessageJoin, type WSMessageLeave, type WSMessageMap, type WSMessagePlayMove, type WSMessageRoomUpdated, type WSMessageSetReady, type WSMessageStartGame };

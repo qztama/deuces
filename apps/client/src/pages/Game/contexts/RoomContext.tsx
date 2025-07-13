@@ -1,6 +1,8 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router';
 import { useWSContext } from './WSContext';
+import { SettingsSchema } from '../../../utils/settings/schema';
+import { loadSettingsFromLS } from '../../../utils/settings/settings';
 
 interface ConnectedClient {
     id: string;
@@ -10,12 +12,16 @@ interface ConnectedClient {
     status: 'connected' | 'disconnected';
 }
 
+type Persona = Pick<SettingsSchema, 'avatar' | 'name'> | null;
+
 interface RoomContextValue {
     roomCode: string;
     clientId: string;
+    persona: Persona;
     connectedClients: ConnectedClient[];
     isGameStarted: boolean;
     isGameOver: boolean;
+    setPersona: React.Dispatch<React.SetStateAction<Persona>>;
 }
 
 const RoomContext = createContext<RoomContextValue | null>(null);
@@ -32,6 +38,14 @@ export const RoomContextProvider = ({
     const { roomCode } = useParams<{ roomCode: string }>();
     const { socket, subscribe, sendMessage } = useWSContext();
 
+    const [persona, setPersona] = useState<Persona>(() => {
+        const settings = loadSettingsFromLS();
+        if (!settings.avatar || !settings.name) {
+            return null;
+        }
+
+        return { avatar: settings.avatar, name: settings.name };
+    });
     const [clientId, setClientId] = useState<string>(() => {
         if (!roomCode) {
             return '';
@@ -54,6 +68,9 @@ export const RoomContextProvider = ({
         let unsubscribeRoomUpdated: (() => void) | null = null;
 
         const tryJoin = () => {
+            if (!persona?.name || !persona?.avatar) {
+                return;
+            }
             unsubscribeRoomUpdated = subscribe('room-updated', (payload) => {
                 localStorage.setItem(
                     getRoomClientLSK(roomCode),
@@ -65,7 +82,12 @@ export const RoomContextProvider = ({
                 setIsGameOver(payload.room.isGameOver);
             });
 
-            sendMessage('join', { roomCode: roomCode!, clientId });
+            sendMessage('join', {
+                roomCode: roomCode!,
+                clientId,
+                name: persona.name,
+                avatar: persona.avatar,
+            });
         };
 
         if (socket.readyState === WebSocket.OPEN) {
@@ -73,7 +95,6 @@ export const RoomContextProvider = ({
             tryJoin();
         } else {
             socket.addEventListener('open', tryJoin, { once: true });
-            return () => socket.removeEventListener('open', tryJoin);
         }
 
         return () => {
@@ -82,16 +103,18 @@ export const RoomContextProvider = ({
             }
             socket.removeEventListener('open', tryJoin);
         };
-    }, [socket]);
+    }, [socket, persona]);
 
     return (
         <RoomContext.Provider
             value={{
                 roomCode,
                 clientId,
+                persona,
                 connectedClients,
                 isGameStarted,
                 isGameOver,
+                setPersona,
             }}
         >
             {children}

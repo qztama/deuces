@@ -1,8 +1,7 @@
-import { WSMessageJoin, WSMessageSetReady, WSMessageRoomUpdated } from '@deuces/shared';
+import { WSMessageJoin, WSMessageSetReady, WSMessageRoomUpdated, Room } from '@deuces/shared';
 import * as redisService from '../../services/redis';
 import { unsubscribeToGame } from '../../services/game/index';
 import {
-    Room,
     getRoomRedisKey,
     join as joinRoom,
     leave as leaveRoom,
@@ -38,7 +37,7 @@ export async function handleJoinRoom(ctx: WSContext, joinMessage: WSMessageJoin)
         ws.send(JSON.stringify(response));
     });
 
-    const room = await joinRoom(payload.roomCode, ctx.clientId, payload.name);
+    const room = await joinRoom(payload.roomCode, payload.name, payload.avatar, ctx.clientId);
     const roomRedisKey = getRoomRedisKey(payload.roomCode);
     await redisClient.set(roomRedisKey, JSON.stringify(room));
 }

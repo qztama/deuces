@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router';
 import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 
@@ -12,19 +12,14 @@ import Room from './pages/Game/Room';
 import Settings from './pages/Settings/Settings';
 
 const App: React.FC = () => {
-    const [mode, setMode] = useState<'light' | 'dark'>('dark');
-    const theme = useMemo(() => getTheme(mode), [mode]);
-
-    const toggleTheme = () => {
-        setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
-    };
+    const theme = getTheme('dark');
 
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <BrowserRouter>
                 <Box display="flex" flexDirection="column" height="100vh">
-                    <NavBar mode={mode} toggleTheme={toggleTheme} />
+                    <NavBar />
                     <Box flexGrow="1">
                         <Routes>
                             <Route path="/" element={<Home />} />

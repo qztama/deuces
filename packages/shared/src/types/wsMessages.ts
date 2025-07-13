@@ -1,5 +1,5 @@
 import { WS_ERR_TYPES } from 'constants';
-import { Room, Card, PlayerGameState } from './game';
+import { Room, Card, PlayerGameState, AvatarOptions } from './game';
 
 export interface WSMessageBase {
     type: string;
@@ -16,7 +16,8 @@ export interface WSMessageJoin extends WSMessageBase {
     payload: {
         roomCode: string;
         clientId?: string;
-        name?: string;
+        name: string;
+        avatar: AvatarOptions;
     };
 }
 
