@@ -1,4 +1,12 @@
-import { createContext, useContext, useEffect, useState, useRef } from 'react';
+import {
+    createContext,
+    useContext,
+    useEffect,
+    useState,
+    useRef,
+    useMemo,
+    useCallback,
+} from 'react';
 
 import {
     Card,
@@ -14,19 +22,23 @@ const TIME_BETWEEN_CARD_DEAL_IN_MS = 50;
 interface GameContextType {
     players: ObfuscatedPlayer[];
     curTurnPlayer: ObfuscatedPlayer | null;
-    hand: Card[];
     inPlay: PlayerGameState['inPlay'];
     history: GameEvent[];
     winners: ObfuscatedPlayer[];
+    isGameOver: boolean;
+    makeMove: (move: 'play' | 'pass', cards: Card[]) => void;
+}
+
+interface HandContextType {
+    hand: Card[];
     hasDealtCards: boolean;
     selectedCards: Set<Card>;
-    isGameOver: boolean;
     toggleSelectedCard: (card: Card) => void;
     rearrangeHand: (rearrangedHand: Card[]) => void;
-    makeMove: (move: 'play' | 'pass') => void;
 }
 
 const GameContext = createContext<GameContextType | null>(null);
+const HandContext = createContext<HandContextType | null>(null);
 
 export const GameContextProvider = ({
     children,
@@ -168,61 +180,75 @@ export const GameContextProvider = ({
         };
     }, [isGameStarted]);
 
-    const makeMove = (move: 'play' | 'pass') => {
-        if (move === 'pass') {
-            sendMessage('play-move', { move: [] });
-            return;
-        }
+    const makeMove = useCallback(
+        (move: 'play' | 'pass', cards: Card[]) => {
+            if (move === 'pass') {
+                sendMessage('play-move', { move: [] });
+                return;
+            }
 
-        sendMessage('play-move', { move: Array.from(selectedCards) });
-        // clear the selected cards
-        setSelectedCards(new Set());
-    };
+            sendMessage('play-move', { move: Array.from(cards) });
+            // clear the selected cards
+            setSelectedCards(new Set());
+        },
+        [sendMessage, setSelectedCards]
+    );
+
+    const gameContextValue = useMemo(
+        () => ({
+            players,
+            curTurnPlayer,
+            inPlay,
+            history,
+            winners,
+            isGameOver,
+            makeMove,
+        }),
+        [players, curTurnPlayer, inPlay, history, winners, isGameOver, makeMove]
+    );
+
+    const handContextValue = useMemo(
+        () => ({
+            hand,
+            hasDealtCards,
+            selectedCards,
+            toggleSelectedCard: (card: Card) => {
+                const newSelectedCards = new Set(selectedCards);
+
+                if (newSelectedCards.has(card)) {
+                    newSelectedCards.delete(card);
+                } else {
+                    newSelectedCards.add(card);
+                }
+
+                setSelectedCards(newSelectedCards);
+            },
+            rearrangeHand: (rearrangedHand: Card[]) => {
+                if (rearrangedHand.length !== hand.length) {
+                    throw new Error('Rearrange Hand: Invalid hand length');
+                }
+
+                const isTheSameCards =
+                    rearrangedHand.every((c) => hand.includes(c)) &&
+                    hand.every((c) => rearrangedHand.includes(c));
+
+                if (!isTheSameCards) {
+                    throw new Error(
+                        'Rearrange Hand: Cards mismatched previous hand.'
+                    );
+                }
+
+                setHand(rearrangedHand);
+            },
+        }),
+        [hand, hasDealtCards, selectedCards, setSelectedCards, setHand]
+    );
 
     return (
-        <GameContext.Provider
-            value={{
-                players,
-                curTurnPlayer,
-                hand,
-                inPlay,
-                history,
-                winners,
-                hasDealtCards,
-                selectedCards,
-                isGameOver,
-                toggleSelectedCard: (card: Card) => {
-                    const newSelectedCards = new Set(selectedCards);
-
-                    if (newSelectedCards.has(card)) {
-                        newSelectedCards.delete(card);
-                    } else {
-                        newSelectedCards.add(card);
-                    }
-
-                    setSelectedCards(newSelectedCards);
-                },
-                rearrangeHand: (rearrangedHand: Card[]) => {
-                    if (rearrangedHand.length !== hand.length) {
-                        throw new Error('Rearrange Hand: Invalid hand length');
-                    }
-
-                    const isTheSameCards =
-                        rearrangedHand.every((c) => hand.includes(c)) &&
-                        hand.every((c) => rearrangedHand.includes(c));
-
-                    if (!isTheSameCards) {
-                        throw new Error(
-                            'Rearrange Hand: Cards mismatched previous hand.'
-                        );
-                    }
-
-                    setHand(rearrangedHand);
-                },
-                makeMove,
-            }}
-        >
-            {children}
+        <GameContext.Provider value={gameContextValue}>
+            <HandContext.Provider value={handContextValue}>
+                {children}
+            </HandContext.Provider>
         </GameContext.Provider>
     );
 };
@@ -231,6 +257,14 @@ export const useGameContext = () => {
     const ctx = useContext(GameContext);
     if (!ctx) {
         throw new Error('useGameContext must be used within the provider');
+    }
+    return ctx;
+};
+
+export const useHandContext = () => {
+    const ctx = useContext(HandContext);
+    if (!ctx) {
+        throw new Error('useHandContext must be used within the provider');
     }
     return ctx;
 };

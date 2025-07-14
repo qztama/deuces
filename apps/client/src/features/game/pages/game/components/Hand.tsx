@@ -21,7 +21,7 @@ import {
     PlayingCard,
     PlayingCardProps,
 } from '../../../components/PlayingCard/PlayingCard';
-import { useGameContext } from '../../../contexts/GameContext';
+import { useHandContext } from '../../../contexts/GameContext';
 import { PLAYING_CARD_WIDTH } from '../constants';
 
 const OVERLAP = PLAYING_CARD_WIDTH / 3;
@@ -33,7 +33,7 @@ export const Hand = () => {
         selectedCards,
         toggleSelectedCard,
         rearrangeHand,
-    } = useGameContext();
+    } = useHandContext();
     const [draggingIdx, setDraggingIdx] = useState<number | null>(null);
     const sensors = useSensors(
         useSensor(PointerSensor, {

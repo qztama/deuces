@@ -240,7 +240,7 @@ export function getNextGameState(curGameState: GameState, move: Card[]): GameSta
         history: [
             ...history,
             {
-                playerId: players[nextTurnPlayerIdx].id,
+                playerId: curPlayer.id,
                 action: isPassMove ? 'passed' : 'played',
                 cards: isPassMove ? undefined : move,
                 type: isPassMove ? undefined : moveType,

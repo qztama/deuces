@@ -44,7 +44,7 @@ export async function handleStartGame(ctx: WSContext) {
 
     // store the game and notify players that the game is ready
     await redisClient.set(gameRedisKey, JSON.stringify(gameState));
-    await redisClient.set(redisRoomKey, JSON.stringify({ ...roomInfo, isGameStarted: true }));
+    await redisClient.set(redisRoomKey, JSON.stringify({ ...roomInfo, isGameStarted: true, isGameOver: false }));
 }
 
 export async function handleConnectToGame(ctx: WSContext): Promise<PlayerGameState> {

@@ -1,10 +1,11 @@
 import { Button, Tooltip, Box } from '@mui/material';
 import { PlayArrow } from '@mui/icons-material';
-import { useGameContext } from '../../../contexts/GameContext';
+import { useGameContext, useHandContext } from '../../../contexts/GameContext';
 import { useRoomContext } from '../../../contexts/RoomContext';
 
 export const PlayButton = () => {
-    const { inPlay, selectedCards, curTurnPlayer, makeMove } = useGameContext();
+    const { inPlay, curTurnPlayer, makeMove } = useGameContext();
+    const { selectedCards } = useHandContext();
     const { clientId } = useRoomContext();
 
     let disabledMessage;
@@ -20,7 +21,7 @@ export const PlayButton = () => {
         <Button
             startIcon={<PlayArrow fontSize="small" />}
             disabled={Boolean(disabledMessage)}
-            onClick={() => makeMove('play')}
+            onClick={() => makeMove('play', Array.from(selectedCards))}
         >
             Play
         </Button>

@@ -10,6 +10,13 @@ import { useGameContext } from '../../../contexts/GameContext';
 import { PlayingCardIcon } from '../../../components/PlayingCard/PlayingCardIcon';
 import { PlayingCardBack } from '../../../components/PlayingCard/PlayingCardBack';
 
+const READABLE_PLACING: Record<number, string> = {
+    0: '1st Place',
+    1: '2nd Place',
+    2: '3rd Place',
+    3: '4th Place',
+};
+
 interface PlayerInfoDisplayProps {
     id: string;
     name: string;
@@ -39,8 +46,8 @@ export const PlayerInfoDisplay = ({
         )?.status === 'connected';
     const connnectionStatusColor = isConnected ? 'success' : 'error';
     const borderColor = isTurn ? palette.primary.main : palette.secondary.main;
+    const placing = winners.findIndex((p) => p.id === id);
     const trophyColor = (() => {
-        const placing = winners.findIndex((p) => p.id === id);
         const rankColors = [
             palette.rank.gold,
             palette.rank.silver,
@@ -96,9 +103,13 @@ export const PlayerInfoDisplay = ({
                 <Box>
                     <Typography fontSize="24px">{name}</Typography>
                     <Box sx={{ userSelect: 'none' }}>
-                        {isTurn ? (
-                            <TurnIndicator />
-                        ) : (
+                        {placing >= 0 && (
+                            <Typography>
+                                {READABLE_PLACING[placing] ?? 'Won!'}
+                            </Typography>
+                        )}
+                        {placing < 0 && isTurn && <TurnIndicator />}
+                        {placing < 0 && !isTurn && (
                             <Typography fontSize="20px">
                                 {hasPassed ? 'Pass!' : 'Ready!'}
                             </Typography>
@@ -140,7 +151,7 @@ export const PlayerInfoDisplay = ({
                     position="absolute"
                     sx={{ bottom: '-20px', right: '-12px' }}
                 >
-                    <TrophyIcon width="40px" />
+                    <TrophyIcon color={trophyColor} width="40px" />
                 </Box>
             )}
         </Box>
@@ -184,6 +195,10 @@ const PlayerDisplayHand = ({
     cardWidthInPx: number;
     cardsLeft: number;
 }) => {
+    if (cardsLeft === 0) {
+        return null;
+    }
+
     const overlapInPx = cardWidthInPx / 2;
     const totalWidth = cardWidthInPx + (cardsLeft - 1) * overlapInPx;
     const centerOffset = totalWidth / 2;

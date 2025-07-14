@@ -2,7 +2,7 @@ import { Box, Button, Tooltip } from '@mui/material';
 import { Sort } from '@mui/icons-material';
 import { RANKS, SUITS } from '@deuces/shared';
 
-import { useGameContext } from '../../../contexts/GameContext';
+import { useHandContext } from '../../../contexts/GameContext';
 
 const SORT_ORDER_BY = ['rank', 'suit'] as const;
 const SORT_ORDER_DIR = ['htl', 'lth'] as const;
@@ -39,7 +39,7 @@ const getSortOptions = (): SortOptions => {
 };
 
 export const SortButton = () => {
-    const { hand, rearrangeHand } = useGameContext();
+    const { hand, rearrangeHand } = useHandContext();
 
     const handleSort = () => {
         const { orderBy, orderDirection } = getSortOptions();

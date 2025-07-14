@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import { Rank, Suit, Card, getHandType, getHandRep } from '@deuces/shared';
 
-import { useGameContext } from '../../../contexts/GameContext';
+import { useHandContext } from '../../../contexts/GameContext';
 import { PlayingCardIcon } from '../../../components/PlayingCard/PlayingCardIcon';
 
 const READABLE_SUIT_NAMES: Record<Suit, string> = {
@@ -47,7 +47,7 @@ function getHandName(move: Card[]) {
 }
 
 export const SelectedCardsDisplay = () => {
-    const { selectedCards } = useGameContext();
+    const { selectedCards } = useHandContext();
     const handName = getHandName(Array.from(selectedCards));
 
     return (
@@ -57,6 +57,7 @@ export const SelectedCardsDisplay = () => {
             alignItems="center"
             gap="4px"
         >
+            {handName && <Typography>{handName}</Typography>}
             <Box display="flex" gap="8px">
                 {Array.from(selectedCards).map((c) => (
                     <PlayingCardIcon
@@ -67,7 +68,6 @@ export const SelectedCardsDisplay = () => {
                     />
                 ))}
             </Box>
-            {handName && <Typography>{handName}</Typography>}
         </Box>
     );
 };

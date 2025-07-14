@@ -21,7 +21,7 @@ import {
     updateSettingsInLS,
 } from '../../../utils/settings/settings';
 import { AvatarSelector } from '../../../components/AvatarSelector';
-import { useRoomContext } from '../../../features/game/contexts/RoomContext';
+import { useRoomContext } from '../contexts/RoomContext';
 
 export const IdentifierSelectorDialog = () => {
     const { palette } = useTheme();

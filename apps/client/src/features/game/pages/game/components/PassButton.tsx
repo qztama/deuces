@@ -19,7 +19,7 @@ export const PassButton = () => {
         <Button
             startIcon={<Block fontSize="small" />}
             disabled={Boolean(disabledMessage)}
-            onClick={() => makeMove('pass')}
+            onClick={() => makeMove('pass', [])}
         >
             Pass
         </Button>

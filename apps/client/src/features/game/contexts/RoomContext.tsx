@@ -1,17 +1,12 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router';
+import { Room } from '@deuces/shared';
 
 import { SettingsSchema } from '@/utils/settings/schema';
 import { loadSettingsFromLS } from '@/utils/settings/settings';
 import { useWSContext } from './WSContext';
 
-interface ConnectedClient {
-    id: string;
-    name: string;
-    isHost: boolean;
-    isReady: boolean;
-    status: 'connected' | 'disconnected';
-}
+type ConnectedClient = Room['connectedClients'][number];
 
 type Persona = Pick<SettingsSchema, 'avatar' | 'name'> | null;
 

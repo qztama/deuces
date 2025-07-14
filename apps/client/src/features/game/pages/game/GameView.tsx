@@ -178,7 +178,7 @@ const GameViewContent = () => {
                             name={ownPlayer.name}
                             avatar={ownPlayer.avatar}
                             cardsLeft={ownPlayer.cardsLeft}
-                            hasPassed={false}
+                            hasPassed={ownPlayer.hasPassed}
                             isTurn={curTurnPlayer?.id === ownPlayer.id}
                             middleCard={ownPlayer.middleCard?.[0]}
                         />
