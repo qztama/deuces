@@ -2,11 +2,13 @@ import axios from 'axios';
 import { useNavigate } from 'react-router';
 import { Box, Button, Input } from '@mui/material';
 
+import { BACKEND_URL } from '@/config';
+
 export const Home = () => {
     const navigate = useNavigate();
 
     const handleCreateGame = async () => {
-        const { data } = await axios.get('http://localhost:3000/create');
+        const { data } = await axios.get(`${BACKEND_URL}/create`);
         console.log(data);
         navigate(`/room/${data.roomCode}`);
     };

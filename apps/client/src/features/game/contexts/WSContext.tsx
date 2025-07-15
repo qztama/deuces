@@ -9,7 +9,8 @@ import {
 import { WSMessageMap, WSMessage } from '@deuces/shared';
 import { useWSErrorHandler } from '../hooks/useWSErrorHandler';
 
-const WS_URL = 'ws://localhost:3001';
+import { WS_URL } from '@/config';
+
 // const WS_URL =
 //     'wss://a62a-2607-fb90-dd16-c6e1-1d8d-d0bb-ea46-2e8c.ngrok-free.app';
 
