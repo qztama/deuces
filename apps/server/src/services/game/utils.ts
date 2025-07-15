@@ -1,5 +1,5 @@
 import { getHandType, checkForStraight, getHandRep, getCardScore, AvatarOptions } from '@deuces/shared';
-import { Card, GameState, ObfuscatedPlayer, PlayerGameState, Player, HandType, Rank, Suit } from './types';
+import { Card, GameState, ObfuscatedPlayer, PlayerGameState, Player, HandType } from './types';
 import { RANKS, SUITS, HAND_TYPES } from './constants';
 
 export { getHandType, checkForStraight };
@@ -73,6 +73,40 @@ export function determineTurnOrder(players: Player[]): Player[] {
     }
 
     return orderedPlayers;
+}
+
+export function getNewGameState(clients: { id: string; name: string; avatar: AvatarOptions }[]): GameState {
+    const shuffledCards = generateShuffledDeck();
+    const { hands, leftOver } = dealCards(shuffledCards, clients.length as 3 | 4);
+    const players = clients.map(({ id, name, avatar }, idx) => {
+        const curPlayerHand = hands[idx];
+        const hasDiamondThree = curPlayerHand.some((card) => card === '3D');
+
+        const formattedPlayer: Player = {
+            id,
+            name,
+            avatar,
+            hand: hasDiamondThree ? curPlayerHand.concat(leftOver) : curPlayerHand,
+            hasPassed: false,
+            middleCard: hasDiamondThree ? leftOver : undefined,
+        };
+        return formattedPlayer;
+    });
+    const orderedPlayers = determineTurnOrder(players);
+
+    return {
+        players: orderedPlayers,
+        inPlay: null,
+        turnNumber: 0,
+        history: [
+            {
+                playerId: orderedPlayers[0].id,
+                action: 'received',
+                cards: leftOver,
+            },
+        ],
+        winners: [],
+    };
 }
 
 export function getHandScore(handType: HandType, move: Card[]): number {

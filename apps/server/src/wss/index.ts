@@ -2,9 +2,8 @@ import { WebSocketServer } from 'ws';
 import { v7 as uuidv7 } from 'uuid';
 
 import { WSContext } from './types';
-import { disconnect as disconnectRoom } from '../services/room';
 import { handleMessage } from './handlers/index';
-import { handleLeaveRoom } from './handlers/roomHandlers';
+import { handleLeaveRoom, handleDisconnectRoom } from './handlers/roomHandlers';
 import { getPrintFriendlyWSContext } from './utils';
 
 export function initWebsocketServer(wssPort: number) {
@@ -24,16 +23,16 @@ export function initWebsocketServer(wssPort: number) {
             await handleMessage(ctx, String(data));
         });
 
-        client.on('close', () => {
+        client.on('close', async () => {
             try {
                 console.log('CLOSED', getPrintFriendlyWSContext(ctx));
                 if (ctx.roomCode) {
                     console.log(`Connection closed for player ${ctx.clientId}`);
 
                     if (ctx.isGameStarted && !ctx.isGameOver) {
-                        disconnectRoom(ctx.roomCode, ctx.clientId);
+                        await handleDisconnectRoom(ctx);
                     } else {
-                        handleLeaveRoom(ctx);
+                        await handleLeaveRoom(ctx);
                     }
                 }
             } catch (err) {

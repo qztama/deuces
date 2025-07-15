@@ -4,14 +4,7 @@ import { HttpError } from '../../utils/error';
 import * as redisService from '../redis';
 import { WSContext } from '../../wss/types';
 import { Card, GameState, Player, PlayerGameState } from './types';
-import {
-    dealCards,
-    determineTurnOrder,
-    generateShuffledDeck,
-    getHandScore,
-    getHandType,
-    getPlayerGameState,
-} from './utils';
+import { getHandScore, getHandType, getNewGameState, getPlayerGameState } from './utils';
 import { AvatarOptions } from '@deuces/shared';
 
 // Game Connection
@@ -35,59 +28,35 @@ export async function getGameStateByRoomCode(roomCode: string) {
     return await getGameState(redisClient, gameRedisKey);
 }
 
-export function subscribeToGame(ctx: WSContext, roomCode: string, cb: (playerGameState: PlayerGameState) => void) {
+export async function saveGameState(roomCode: string, gameState: GameState) {
     const redisClient = redisService.getClient();
     const gameRedisKey = getGameRedisKey(roomCode);
+    await redisClient.set(gameRedisKey, JSON.stringify(gameState));
+}
 
-    redisService.subscribe(ctx, gameRedisKey, async () => {
-        const gameState = await getGameState(redisClient, gameRedisKey);
+export function subscribeToGame(ctx: WSContext, roomCode: string, cb: (playerGameState: PlayerGameState) => void) {
+    redisService.subscribeToGame(ctx, roomCode, (gameState) => {
         const playerGameState = getPlayerGameState(ctx.clientId, gameState);
         cb(playerGameState);
     });
 }
 
 export function unsubscribeToGame(ctx: WSContext, roomCode: string) {
-    const gameRedisKey = getGameRedisKey(roomCode);
-    redisService.unsubscribe(ctx, gameRedisKey);
+    redisService.unsubscribeToGame(ctx, roomCode);
 }
 
 // Gameplay
-export function initGame(clients: { id: string; name: string; avatar: AvatarOptions }[]): GameState {
+export async function initGame(
+    roomCode: string,
+    clients: { id: string; name: string; avatar: AvatarOptions }[]
+): Promise<GameState> {
     if (![3, 4].includes(clients.length)) {
         throw new Error(`Error initializing game: invalid number of players found.`);
     }
 
-    const shuffledCards = generateShuffledDeck();
-    const { hands, leftOver } = dealCards(shuffledCards, clients.length as 3 | 4);
-    const players = clients.map(({ id, name, avatar }, idx) => {
-        const curPlayerHand = hands[idx];
-        const hasDiamondThree = curPlayerHand.some((card) => card === '3D');
-
-        const formattedPlayer: Player = {
-            id,
-            name,
-            avatar,
-            hand: hasDiamondThree ? curPlayerHand.concat(leftOver) : curPlayerHand,
-            hasPassed: false,
-            middleCard: hasDiamondThree ? leftOver : undefined,
-        };
-        return formattedPlayer;
-    });
-    const orderedPlayers = determineTurnOrder(players);
-
-    return {
-        players: orderedPlayers,
-        inPlay: null,
-        turnNumber: 0,
-        history: [
-            {
-                playerId: orderedPlayers[0].id,
-                action: 'received',
-                cards: leftOver,
-            },
-        ],
-        winners: [],
-    };
+    const newGameState = getNewGameState(clients);
+    await saveGameState(roomCode, newGameState);
+    return newGameState;
 }
 
 // empty array move = pass

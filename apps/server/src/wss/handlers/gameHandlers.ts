@@ -1,4 +1,4 @@
-import { WSMessageGameUpdated, PlayerGameState } from '@deuces/shared';
+import { WSMessageGameUpdated, PlayerGameState, Card } from '@deuces/shared';
 import {
     getGameRedisKey,
     getGameState,
@@ -7,23 +7,21 @@ import {
     validateMove,
     subscribeToGame,
     getGameStateByRoomCode,
+    saveGameState,
 } from '../../services/game/index.js';
 import * as redisService from '../../services/redis.js';
-import { getRoomInfo, getRoomRedisKey } from '../../services/room.js';
-import { Card } from '../../services/game/types.js';
+import { getRoomInfoByRoomCode, saveRoomInfo } from '../../services/room.js';
 import { WSContext } from '../types.js';
 import { getPlayerGameState } from '../../services/game/utils.js';
 
 export async function handleStartGame(ctx: WSContext) {
     const { roomCode } = ctx;
-    const redisClient = redisService.getClient();
 
     if (!roomCode) {
         throw new Error(`Error starting game: could not find roomCode for client ${ctx.clientId}`);
     }
 
-    const redisRoomKey = getRoomRedisKey(roomCode);
-    const roomInfo = await getRoomInfo(redisClient, redisRoomKey);
+    const roomInfo = await getRoomInfoByRoomCode(roomCode);
     const totalClients = roomInfo.connectedClients.length;
     const hostClient = roomInfo.connectedClients.find(({ isHost }) => isHost);
 
@@ -39,12 +37,25 @@ export async function handleStartGame(ctx: WSContext) {
         throw new Error(`Error starting game: client ${ctx.clientId} is not the host!`);
     }
 
-    const gameRedisKey = getGameRedisKey(roomCode);
-    const gameState = initGame(roomInfo.connectedClients.map(({ id, name, avatar }) => ({ id, name, avatar })));
+    // consume player ready's, store the game, and notify players that the game is ready
+    const updatedRoomInfo = {
+        ...{
+            ...roomInfo,
+            connectedClients: roomInfo.connectedClients.map((cc) => {
+                return { ...cc, isReady: false };
+            }),
+        },
+        isGameStarted: true,
+        isGameOver: false,
+    };
+    const newGameState = await initGame(
+        roomCode,
+        roomInfo.connectedClients.map(({ id, name, avatar }) => ({ id, name, avatar }))
+    );
+    await saveRoomInfo(roomCode, updatedRoomInfo);
 
-    // store the game and notify players that the game is ready
-    await redisClient.set(gameRedisKey, JSON.stringify(gameState));
-    await redisClient.set(redisRoomKey, JSON.stringify({ ...roomInfo, isGameStarted: true, isGameOver: false }));
+    redisService.publishRoomUpdate(roomCode, updatedRoomInfo);
+    redisService.publishGameUpdate(roomCode, newGameState);
 }
 
 export async function handleConnectToGame(ctx: WSContext): Promise<PlayerGameState> {
@@ -85,17 +96,19 @@ export async function handlePlayMove(ctx: WSContext, move: Card[]): Promise<null
     // 2. update redis with next game state
     if (isValidMove) {
         const nextGameState = getNextGameState(gameState, move);
-
         const isGameOver = nextGameState.winners.length === nextGameState.players.length - 1;
 
-        await redisClient.set(gameRedisKey, JSON.stringify(nextGameState));
+        await saveGameState(roomCode, nextGameState);
 
         if (isGameOver) {
-            const redisRoomKey = getRoomRedisKey(roomCode);
-            const roomInfo = await getRoomInfo(redisClient, redisRoomKey);
-            roomInfo.isGameOver = true;
+            const roomInfo = await getRoomInfoByRoomCode(roomCode);
+            const updatedRoomInfo = { ...roomInfo, isGameOver: true };
+            await saveRoomInfo(roomCode, updatedRoomInfo);
 
-            await redisClient.set(redisRoomKey, JSON.stringify(roomInfo));
+            await redisService.publishGameUpdate(roomCode, nextGameState);
+            await redisService.publishRoomUpdate(roomCode, updatedRoomInfo);
+        } else {
+            await redisService.publishGameUpdate(roomCode, nextGameState);
         }
 
         return null;

@@ -2,7 +2,7 @@ import { WSMessageJoin, WSMessageSetReady, WSMessageRoomUpdated, Room } from '@d
 import * as redisService from '../../services/redis';
 import { unsubscribeToGame } from '../../services/game/index';
 import {
-    getRoomRedisKey,
+    disconnect,
     join as joinRoom,
     leave as leaveRoom,
     subscribeToRoomInfo,
@@ -15,7 +15,6 @@ import { getPrintFriendlyWSContext } from '../utils.js';
 export async function handleJoinRoom(ctx: WSContext, joinMessage: WSMessageJoin) {
     const { ws } = ctx;
     const { payload } = joinMessage;
-    const redisClient = redisService.getClient();
 
     // user rejoined; update their clientId to their previous clientId
     if (payload.clientId) {
@@ -38,8 +37,7 @@ export async function handleJoinRoom(ctx: WSContext, joinMessage: WSMessageJoin)
     });
 
     const room = await joinRoom(payload.roomCode, payload.name, payload.avatar, ctx.clientId);
-    const roomRedisKey = getRoomRedisKey(payload.roomCode);
-    await redisClient.set(roomRedisKey, JSON.stringify(room));
+    await redisService.publishRoomUpdate(payload.roomCode, room);
 }
 
 export async function handleSetReady(ctx: WSContext, message: WSMessageSetReady) {
@@ -54,17 +52,34 @@ export async function handleSetReady(ctx: WSContext, message: WSMessageSetReady)
         throw new Error('Could not find roomCode in ctx.');
     }
 
-    await updateClientReadyState({ clientId, roomCode, isReady });
+    const roomInfo = await updateClientReadyState({ clientId, roomCode, isReady });
+    await redisService.publishRoomUpdate(roomCode, roomInfo);
 }
 
-export function handleLeaveRoom(ctx: WSContext) {
-    if (!ctx.roomCode) {
+export async function handleDisconnectRoom(ctx: WSContext) {
+    const { roomCode, clientId } = ctx;
+    if (!roomCode) {
+        console.error('No roomCode provided for disconnecting room.', getPrintFriendlyWSContext(ctx));
+        return;
+    }
+
+    unsubscribeToGame(ctx, roomCode);
+    unsubscribeToRoomInfo(ctx, roomCode);
+
+    const roomInfo = await disconnect(roomCode, ctx.clientId);
+    await redisService.publishRoomUpdate(roomCode, roomInfo);
+}
+
+export async function handleLeaveRoom(ctx: WSContext) {
+    const { roomCode, clientId } = ctx;
+    if (!roomCode) {
         console.error('No roomCode provided for leaving room.', getPrintFriendlyWSContext(ctx));
         return;
     }
 
-    unsubscribeToGame(ctx, ctx.roomCode);
-    unsubscribeToRoomInfo(ctx, ctx.roomCode);
+    unsubscribeToGame(ctx, roomCode);
+    unsubscribeToRoomInfo(ctx, roomCode);
 
-    leaveRoom(ctx.roomCode, ctx.clientId);
+    const roomInfo = await leaveRoom(roomCode, clientId);
+    await redisService.publishRoomUpdate(roomCode, roomInfo);
 }

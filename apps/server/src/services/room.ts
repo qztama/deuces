@@ -38,6 +38,12 @@ export async function getRoomInfoByRoomCode(roomCode: string): Promise<Room> {
     return getRoomInfo(redisClient, roomRedisKey);
 }
 
+export async function saveRoomInfo(roomCode: string, roomInfo: Room): Promise<void> {
+    const redisClient = redisService.getClient();
+    const roomRedisKey = getRoomRedisKey(roomCode);
+    await redisClient.set(roomRedisKey, JSON.stringify(roomInfo));
+}
+
 export async function create() {
     const redisClient = redisService.getClient();
 
@@ -74,6 +80,7 @@ export async function join(roomCode: string, name: string, avatar: AvatarOptions
         }
 
         room.connectedClients[matchedClientIdx].status = 'connected';
+        await saveRoomInfo(roomCode, room);
         return room;
     }
 
@@ -90,6 +97,9 @@ export async function join(roomCode: string, name: string, avatar: AvatarOptions
         status: 'connected',
     });
 
+    // save the update room info
+    await saveRoomInfo(roomCode, room);
+
     return room;
 }
 
@@ -101,10 +111,8 @@ export async function updateClientReadyState({
     clientId: string;
     roomCode: string;
     isReady: boolean;
-}) {
-    const redisClient = redisService.getClient();
-    const roomRedisKey = getRoomRedisKey(roomCode);
-    const roomInfo: Room = await getRoomInfo(redisClient, roomRedisKey);
+}): Promise<Room> {
+    const roomInfo: Room = await getRoomInfoByRoomCode(roomCode);
     if (!roomInfo) {
         throw new Error(`Could not find room ${roomCode}.`);
     }
@@ -115,10 +123,12 @@ export async function updateClientReadyState({
     }
 
     ownConnectedClient.isReady = isReady;
-    await redisClient.set(roomRedisKey, JSON.stringify(roomInfo));
+    await saveRoomInfo(roomCode, roomInfo);
+
+    return roomInfo;
 }
 
-export async function leave(roomCode: string, clientId: string) {
+export async function leave(roomCode: string, clientId: string): Promise<Room> {
     const redisClient = redisService.getClient();
     const roomRedisKey = getRoomRedisKey(roomCode);
     const room = await getRoomInfo(redisClient, roomRedisKey);
@@ -135,35 +145,32 @@ export async function leave(roomCode: string, clientId: string) {
         room.connectedClients[0].isHost = true;
     }
     await redisClient.set(roomRedisKey, JSON.stringify(room));
+
+    return room;
 }
 
-export async function disconnect(roomCode: string, clientId: string) {
-    const redisClient = redisService.getClient();
-    const roomRedisKey = getRoomRedisKey(roomCode);
-    const room = await getRoomInfo(redisClient, roomRedisKey);
+export async function disconnect(roomCode: string, clientId: string): Promise<Room> {
+    const roomInfo = await getRoomInfoByRoomCode(roomCode);
 
-    const matchedClientIdx = room.connectedClients.findIndex((c) => c.id === clientId);
+    const matchedClientIdx = roomInfo.connectedClients.findIndex((c) => c.id === clientId);
 
     if (matchedClientIdx === -1) {
         throw new HttpError(404, `Could not find connected client ${clientId}.`);
     }
 
-    room.connectedClients[matchedClientIdx].status = 'disconnected';
-    await redisClient.set(roomRedisKey, JSON.stringify(room));
+    roomInfo.connectedClients[matchedClientIdx].status = 'disconnected';
+    await saveRoomInfo(roomCode, roomInfo);
 
     console.log('disconnected');
+    return roomInfo;
 }
 
 export function subscribeToRoomInfo(ctx: WSContext, roomCode: string, cb: (roomInfo: Room) => void) {
-    const redisClient = redisService.getClient();
-    const roomRedisKey = getRoomRedisKey(roomCode);
-    redisService.subscribe(ctx, roomRedisKey, async () => {
-        const roomInfo = await getRoomInfo(redisClient, roomRedisKey);
+    redisService.subscribeToRoom(ctx, roomCode, (roomInfo) => {
         cb(roomInfo);
     });
 }
 
 export function unsubscribeToRoomInfo(ctx: WSContext, roomCode: string) {
-    const roomRedisKey = getRoomRedisKey(roomCode);
-    redisService.unsubscribe(ctx, roomRedisKey);
+    redisService.unsubscribeToRoom(ctx, roomCode);
 }
