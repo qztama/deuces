@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "tsup",
+    "build": "pnpm --filter @deuces/shared build && tsup",
     "start": "node dist/index.js",
     "serve": "tsup src/index.ts --watch --onSuccess='node dist/index.js'",
     "test": "jest"
