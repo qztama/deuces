@@ -1,13 +1,14 @@
 import { WebSocketServer } from 'ws';
 import { v7 as uuidv7 } from 'uuid';
+import { Server as HttpServer } from 'http';
 
 import { WSContext } from './types';
 import { handleMessage } from './handlers/index';
 import { handleLeaveRoom, handleDisconnectRoom } from './handlers/roomHandlers';
 import { getPrintFriendlyWSContext } from './utils';
 
-export function initWebsocketServer(wssPort: number) {
-    const wss = new WebSocketServer({ port: wssPort, host: '0.0.0.0' }, () => {
+export function initWebsocketServer(server: HttpServer) {
+    const wss = new WebSocketServer({ server }, () => {
         console.log('Websocket Server Started');
     });
 
@@ -39,9 +40,5 @@ export function initWebsocketServer(wssPort: number) {
                 console.error('Error closing connection', err);
             }
         });
-    });
-
-    wss.on('listening', () => {
-        console.log(`Listening on port ${wssPort}`);
     });
 }

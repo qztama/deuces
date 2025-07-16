@@ -12,10 +12,12 @@ let subscriber: RedisClientType;
 const roomSubscriptions = new Map<string, Map<string, (room: Room) => void>>();
 const gameSubscriptions = new Map<string, Map<string, (gameState: GameState) => void>>();
 
-export const initRedisClient = async () => {
+export const initRedisClient = async (redisUrl: string) => {
     if (!redisClient) {
         console.log('Initializing Redis Client...');
-        redisClient = createClient();
+        redisClient = createClient({
+            url: redisUrl,
+        });
         redisClient.on('error', (err) => console.error('Redis Client Error', err));
         await redisClient.connect();
 
