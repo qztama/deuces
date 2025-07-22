@@ -26,7 +26,7 @@ export async function getRoomInfo(redisClient: RedisClientType, roomRedisKey: st
     const roomData = await redisClient.get(roomRedisKey);
 
     if (!roomData) {
-        throw new HttpError(404, 'Room not found.');
+        throw new Error('No room data found.');
     }
 
     return JSON.parse(roomData) as Room;
@@ -68,15 +68,12 @@ export async function create() {
 }
 
 export async function join(roomCode: string, name: string, avatar: AvatarOptions, clientId: string): Promise<Room> {
-    const redisClient = redisService.getClient();
-    const roomRedisKey = getRoomRedisKey(roomCode);
-
-    const room: Room = await getRoomInfo(redisClient, roomRedisKey);
+    const room: Room = await getRoomInfoByRoomCode(roomCode);
     const matchedClientIdx = room.connectedClients.findIndex((c) => c.id === clientId);
 
     if (matchedClientIdx !== -1) {
         if (room.connectedClients[matchedClientIdx].status === 'connected') {
-            throw new HttpError(400, 'User is already connected.');
+            throw new Error('User is already connected.');
         }
 
         room.connectedClients[matchedClientIdx].status = 'connected';
@@ -85,7 +82,7 @@ export async function join(roomCode: string, name: string, avatar: AvatarOptions
     }
 
     if (room.connectedClients.length >= 3) {
-        throw new HttpError(400, 'Room is already full.');
+        throw new Error('Room is already full.');
     }
 
     room.connectedClients.push({

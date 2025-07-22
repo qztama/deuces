@@ -11,9 +11,6 @@ import { useWSErrorHandler } from '../hooks/useWSErrorHandler';
 
 import { WS_URL } from '@/config';
 
-// const WS_URL =
-//     'wss://a62a-2607-fb90-dd16-c6e1-1d8d-d0bb-ea46-2e8c.ngrok-free.app';
-
 type SubscriptionMap = Map<
     keyof WSMessageMap,
     Set<
@@ -77,7 +74,12 @@ export const WSContextProvider = ({
 
             if (!subscriptionsRef.current.has('error')) {
                 unsubscribeWSError = subscribe('error', ({ type, message }) => {
-                    errorToast({ type, message });
+                    console.log('type', type, 'message', message);
+                    if (type === 'Join Room Error') {
+                        setConnectionStatus('error');
+                    } else {
+                        errorToast({ type, message });
+                    }
                 });
             }
         };
@@ -85,7 +87,6 @@ export const WSContextProvider = ({
         socket.onmessage = (event) => {
             try {
                 const message = JSON.parse(event.data) as WSMessage;
-                console.log('message', message);
                 dispatchMessage(message);
             } catch (err) {
                 console.error('WebSocket message parse error', err);
@@ -98,7 +99,7 @@ export const WSContextProvider = ({
         };
 
         socket.onerror = (err) => {
-            console.error('WebSocket Error', err);
+            console.log('WebSocket Error');
             setConnectionStatus('error');
         };
 

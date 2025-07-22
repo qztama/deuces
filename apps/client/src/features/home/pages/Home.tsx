@@ -1,11 +1,15 @@
-import axios from 'axios';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Box, Button, Input } from '@mui/material';
+import axios from 'axios';
+import { Box, Button, Typography } from '@mui/material';
 
 import { BACKEND_URL } from '@/config';
+import { HOME_PATHS } from '@/router/routes';
+import { JoinRoomDialog } from '../components/JoinGameDialog';
 
 export const Home = () => {
     const navigate = useNavigate();
+    const [isJoinRoomDialogOpen, setIsJoinRoomDialogOpen] = useState(false);
 
     const handleCreateGame = async () => {
         const { data } = await axios.get(`${BACKEND_URL}/create`);
@@ -13,15 +17,54 @@ export const Home = () => {
         navigate(`/room/${data.roomCode}`);
     };
 
+    const handleHowToPlayClick = () => {
+        navigate(HOME_PATHS.HOW_TO_PLAY.getResolvedPath());
+    };
+
     return (
         <>
-            <h1>Deuces</h1>
-            <Box>
-                <Button onClick={handleCreateGame}>Create Game</Button>
-
-                <Box display="flex">
-                    <Button>Join Game</Button>
-                    <Input />
+            <JoinRoomDialog
+                isOpen={isJoinRoomDialogOpen}
+                onClose={() => setIsJoinRoomDialogOpen(false)}
+            />
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="80%"
+            >
+                <Box
+                    display="flex"
+                    flexDirection="column"
+                    width="20%"
+                    gap="16px"
+                >
+                    <Typography variant="h1" sx={{ textAlign: 'center' }}>
+                        Deuces
+                    </Typography>
+                    <Box display="flex" flexDirection="column" gap="8px">
+                        <Button
+                            fullWidth
+                            variant="outlined"
+                            onClick={handleCreateGame}
+                        >
+                            Create Game
+                        </Button>
+                        <Button
+                            fullWidth
+                            variant="outlined"
+                            onClick={() => setIsJoinRoomDialogOpen(true)}
+                        >
+                            Join Game
+                        </Button>
+                        <Button
+                            fullWidth
+                            variant="outlined"
+                            onClick={handleHowToPlayClick}
+                        >
+                            How to Play
+                        </Button>
+                    </Box>
                 </Box>
             </Box>
         </>

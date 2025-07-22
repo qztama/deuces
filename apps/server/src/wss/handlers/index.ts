@@ -21,7 +21,18 @@ export async function handleMessage(ctx: WSContext, data: string) {
             case 'join': {
                 const joinMessage = message as WSMessageJoin;
                 ctx.roomCode = joinMessage.payload.roomCode;
-                await handleJoinRoom(ctx, joinMessage);
+                const errMessage = await handleJoinRoom(ctx, joinMessage);
+
+                if (errMessage) {
+                    const response: WSMessageError = {
+                        type: 'error',
+                        payload: {
+                            type: WS_ERR_TYPES.JOIN_ROOM,
+                            message: errMessage,
+                        },
+                    };
+                    ctx.ws.send(JSON.stringify(response));
+                }
                 break;
             }
             case 'set-ready': {

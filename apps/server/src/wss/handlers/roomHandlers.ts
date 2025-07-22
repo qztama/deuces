@@ -12,7 +12,7 @@ import {
 import { WSContext } from '../types.js';
 import { getPrintFriendlyWSContext } from '../utils.js';
 
-export async function handleJoinRoom(ctx: WSContext, joinMessage: WSMessageJoin) {
+export async function handleJoinRoom(ctx: WSContext, joinMessage: WSMessageJoin): Promise<string | null> {
     const { ws } = ctx;
     const { payload } = joinMessage;
 
@@ -36,8 +36,24 @@ export async function handleJoinRoom(ctx: WSContext, joinMessage: WSMessageJoin)
         ws.send(JSON.stringify(response));
     });
 
-    const room = await joinRoom(payload.roomCode, payload.name, payload.avatar, ctx.clientId);
-    await redisService.publishRoomUpdate(payload.roomCode, room);
+    let room;
+
+    try {
+        room = await joinRoom(payload.roomCode, payload.name, payload.avatar, ctx.clientId);
+    } catch (err) {
+        unsubscribeToRoomInfo(ctx, payload.roomCode);
+
+        if (err instanceof Error) {
+            return err.message;
+        }
+
+        throw err;
+    }
+
+    if (room) {
+        await redisService.publishRoomUpdate(payload.roomCode, room);
+    }
+    return null;
 }
 
 export async function handleSetReady(ctx: WSContext, message: WSMessageSetReady) {

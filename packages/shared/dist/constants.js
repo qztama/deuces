@@ -48,6 +48,7 @@ var HAND_TYPE_MULTIPLER = 1e3;
 var RANK_MULTIPLER = 10;
 var WS_ERR_TYPES = {
   GENERIC: "Internal Server Error",
+  JOIN_ROOM: "Join Room Error",
   INVALID_MOVE: "Invalid Move"
 };
 var AVATAR_OPTIONS = ["ASTRO", "ASTROBEAR", "GORILLA", "MOUSE"];

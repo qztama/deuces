@@ -21,6 +21,7 @@ export const RANK_MULTIPLER = 10;
 
 export const WS_ERR_TYPES = {
     GENERIC: 'Internal Server Error',
+    JOIN_ROOM: 'Join Room Error',
     INVALID_MOVE: 'Invalid Move',
 } as const;
 
