@@ -7,7 +7,7 @@ import { NavBar } from './components/NavBar';
 import { AppRouter } from './router/AppRouter';
 
 const App: React.FC = () => {
-    const theme = getTheme('dark');
+    const theme = getTheme();
 
     return (
         <ThemeProvider theme={theme}>

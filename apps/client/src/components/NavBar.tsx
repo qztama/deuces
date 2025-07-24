@@ -14,11 +14,10 @@ export const NavBar = (_props: NavBarProps) => {
         <Box
             component="nav"
             sx={{
-                bgcolor: theme.palette.mode === 'light' ? '#D8D7E7' : '#2A2B3D',
-                color: theme.palette.mode === 'light' ? '#2E2E3E' : '#E5E5F2',
+                bgcolor: '#2A2B3D',
+                color: '#E5E5F2',
                 borderBottom: '1px solid',
-                borderColor:
-                    theme.palette.mode === 'light' ? '#C5C4D6' : '#3D3F53',
+                borderColor: '#3D3F53',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',

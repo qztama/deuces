@@ -8,16 +8,16 @@ export const GameInterstitial = () => {
     const { connectionStatus } = useWSContext();
     const { persona, connectedClients } = useRoomContext();
 
+    if (!persona) {
+        return <IdentifierSelectorDialog />;
+    }
+
     if (connectionStatus === 'closed' || connectionStatus === 'error') {
         return <ConnectionError />;
     }
 
     if (connectionStatus === 'connecting' || connectedClients.length === 0) {
         return <LoadingScreen />;
-    }
-
-    if (!persona) {
-        return <IdentifierSelectorDialog />;
     }
 
     return <Outlet />;
