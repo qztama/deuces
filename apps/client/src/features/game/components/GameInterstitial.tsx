@@ -2,14 +2,14 @@ import { Outlet } from 'react-router';
 import { Box, Typography, Button, CircularProgress } from '@mui/material';
 import { useWSContext } from '../contexts/WSContext';
 import { useRoomContext } from '../contexts/RoomContext';
-import { IdentifierSelectorDialog } from './IdentifierSelectorDialog';
+import { PersonaSelectorDialog } from './PersonaSelectorDialog';
 
 export const GameInterstitial = () => {
     const { connectionStatus } = useWSContext();
     const { persona, connectedClients } = useRoomContext();
 
     if (!persona) {
-        return <IdentifierSelectorDialog />;
+        return <PersonaSelectorDialog />;
     }
 
     if (connectionStatus === 'closed' || connectionStatus === 'error') {

@@ -31,7 +31,6 @@ export const JoinRoomDialog = ({ isOpen, onClose }: JoinRoomDialogProps) => {
     const navigate = useNavigate();
 
     const isValidRoomCode = validateRoomCode(roomCode);
-    console.log(isValidRoomCode);
 
     return (
         <Dialog open={isOpen} onClose={() => onClose()}>

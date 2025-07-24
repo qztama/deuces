@@ -23,7 +23,7 @@ import {
 import { AvatarSelector } from '../../../components/AvatarSelector';
 import { useRoomContext } from '../contexts/RoomContext';
 
-export const IdentifierSelectorDialog = () => {
+export const PersonaSelectorDialog = () => {
     const { palette } = useTheme();
     const { setPersona } = useRoomContext();
     const {
@@ -53,15 +53,9 @@ export const IdentifierSelectorDialog = () => {
         <Dialog open={true} keepMounted>
             <Box
                 sx={{
-                    border: '3px solid transparent',
                     borderRadius: '12px',
                     overflow: 'hidden',
-                    backgroundImage: `
-                        linear-gradient(${palette.background.default}, ${palette.background.default}),
-                        linear-gradient(180deg, #6C6FAE, #A3A8D1)
-                    `,
-                    backgroundOrigin: 'border-box',
-                    backgroundClip: 'padding-box, border-box',
+                    border: `2px solid ${palette.secondary.main}`,
                     color: '#F4F5FA',
                     padding: '12px 8px',
                 }}

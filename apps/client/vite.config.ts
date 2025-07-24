@@ -6,11 +6,9 @@ import path from 'path';
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [react(), svgr()],
-    // server: {
-    //     host: true,
-    //     port: 5173,
-    //     origin: 'https://8db9-2607-fb90-dd16-c6e1-1d8d-d0bb-ea46-2e8c.ngrok-free.app',
-    // },
+    esbuild: {
+        drop: ['console', 'debugger'],
+    },
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),
