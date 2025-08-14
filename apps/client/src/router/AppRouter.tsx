@@ -1,14 +1,14 @@
+import { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router';
 
-import { Suspense, lazy } from 'react';
 import { GameLayout } from '@/features/game/components/GameLayout';
 import { GameInterstitial } from '@/features/game/components/GameInterstitial';
 import { GameView } from '../features/game/pages/game/GameView';
 import { Room } from '../features/game/pages/room/Room';
+import HomePage from '../features/home/pages/Home';
 
 import { PATHS } from './routes';
 
-const HomePage = lazy(() => import('../features/home/pages/Home'));
 const HowToPlayPage = lazy(() => import('../features/home/pages/HowToPlay'));
 const SettingsPage = lazy(() => import('../features/settings/pages/Settings'));
 
