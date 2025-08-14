@@ -34,12 +34,12 @@ const ConnectionError = () => {
             flexDirection="column"
             alignItems="center"
             justifyContent="center"
-            height="100vh"
+            height="100%"
             textAlign="center"
             padding="24px"
             gap={2}
         >
-            <Typography variant="h4" color="error">
+            <Typography variant="h4" component="h1" color="error">
                 Connection Error
             </Typography>
 
