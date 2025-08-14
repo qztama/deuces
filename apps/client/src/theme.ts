@@ -17,8 +17,8 @@ declare module '@mui/material/styles' {
     }
 }
 
-const getDesignTokens = (): ThemeOptions => ({
-    palette: {
+const getDesignTokens = (): ThemeOptions => {
+    const palette = {
         primary: {
             main: '#A3A8D1',
             contrastText: '#1C1C2A',
@@ -52,29 +52,36 @@ const getDesignTokens = (): ThemeOptions => ({
             silver: '#D1D1D1',
             bronze: '#D9A066',
         },
-    },
-    typography: {
-        fontFamily: `'Inter', 'Nunito', sans-serif`,
-        h1: { fontWeight: 600, fontSize: '32px' },
-        h2: { fontWeight: 500, fontSize: '28px' },
-        h3: { fontWeight: 400, fontSize: '24px' },
-        body1: { fontSize: '1rem' },
-        body2: { fontSize: '0.875rem' },
-    },
-    shape: {
-        borderRadius: 12,
-    },
-    components: {
-        MuiButton: {
-            styleOverrides: {
-                root: {
-                    textTransform: 'none',
-                    borderRadius: 10,
+    };
+
+    return {
+        palette,
+        typography: {
+            fontFamily: `'Inter', 'Nunito', sans-serif`,
+            h1: { fontWeight: 600, fontSize: '32px' },
+            h2: { fontWeight: 500, fontSize: '28px' },
+            h3: { fontWeight: 400, fontSize: '24px' },
+            body1: { fontSize: '1rem' },
+            body2: { fontSize: '0.875rem' },
+        },
+        shape: {
+            borderRadius: 12,
+        },
+        components: {
+            MuiButton: {
+                styleOverrides: {
+                    root: {
+                        textTransform: 'none',
+                        borderRadius: 10,
+                        '&.Mui-disabled': {
+                            color: palette.text.secondary,
+                        },
+                    },
                 },
             },
         },
-    },
-});
+    };
+};
 
 const getTheme = () => createTheme(getDesignTokens());
 
