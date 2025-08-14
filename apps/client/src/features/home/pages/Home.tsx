@@ -7,7 +7,7 @@ import { BACKEND_URL } from '@/config';
 import { HOME_PATHS } from '@/router/routes';
 import { JoinRoomDialog } from '../components/JoinGameDialog';
 
-export const Home = () => {
+const Home = () => {
     const navigate = useNavigate();
     const [isJoinRoomDialogOpen, setIsJoinRoomDialogOpen] = useState(false);
 
@@ -70,3 +70,5 @@ export const Home = () => {
         </>
     );
 };
+
+export default Home;

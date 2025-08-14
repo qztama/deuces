@@ -12,7 +12,7 @@ import { ArrowBack } from '@mui/icons-material';
 
 import { HOME_PATHS } from '@/router/routes';
 
-export const HowToPlay = () => {
+const HowToPlay = () => {
     const navigate = useNavigate();
 
     const navToHome = () => {
@@ -207,3 +207,5 @@ export const HowToPlay = () => {
         </Box>
     );
 };
+
+export default HowToPlay;
