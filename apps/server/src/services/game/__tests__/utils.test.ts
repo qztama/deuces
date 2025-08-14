@@ -1,6 +1,6 @@
-import { generateOrderedDeck, generateShuffledDeck, dealCards, determineTurnOrder } from '../utils';
+import { generateOrderedDeck, generateShuffledDeck, dealCards, determineTurnOrder, checkMoveValidity } from '../utils';
 import { RANKS, SUITS } from '../constants';
-import { Card, Player } from '../types';
+import { Card, Player, GameState } from '../types';
 
 describe('generateShuffledDeck', () => {
     it('should return 52 cards', () => {
@@ -77,18 +77,21 @@ describe('determineTurnOrder', () => {
         const players: Player[] = [
             {
                 id: 'player1',
+                avatar: 'ASTRO',
                 name: 'Player 1',
                 hand: ['5S', '6H'],
                 hasPassed: false,
             },
             {
                 id: 'player2',
+                avatar: 'ASTRO',
                 name: 'Player 2',
                 hand: ['3D', '9C'],
                 hasPassed: false,
             },
             {
                 id: 'player3',
+                avatar: 'ASTRO',
                 name: 'Player 3',
                 hand: ['7H', '8S'],
                 hasPassed: false,
@@ -98,5 +101,87 @@ describe('determineTurnOrder', () => {
         const turnOrder = determineTurnOrder(players);
 
         expect(turnOrder.map(({ id }) => id)).toEqual(['player2', 'player3', 'player1']);
+    });
+});
+
+describe('checkMoveValidity', () => {
+    const basePlayers: Player[] = [
+        { id: 'p1', name: 'A', avatar: 'ASTRO', hand: ['3D', '4D'], hasPassed: false },
+        { id: 'p2', name: 'B', avatar: 'GORILLA', hand: ['5D', '6D'], hasPassed: false },
+        { id: 'p3', name: 'C', avatar: 'MOUSE', hand: ['7D', '8D'], hasPassed: false },
+    ];
+
+    function getBaseGameState(overrides = {}) {
+        return {
+            players: JSON.parse(JSON.stringify(basePlayers)),
+            inPlay: null,
+            turnNumber: 0,
+            history: [],
+            winners: [],
+            ...overrides,
+        } as GameState;
+    }
+
+    it('should allow valid first move with 3D', () => {
+        const gameState = getBaseGameState();
+        const result = checkMoveValidity(gameState, 'p1', ['3D']);
+        expect(result.isValid).toBe(true);
+        expect(result.errorMessage).toBe('');
+    });
+
+    it('should allow a valid move for another player after the first round', () => {
+        const gameState = getBaseGameState({ inPlay: { playerId: 'p1', hand: ['4D'], type: 'single' }, turnNumber: 2 });
+        const result = checkMoveValidity(gameState, 'p3', ['7D']);
+        expect(result.isValid).toBe(true);
+        expect(result.errorMessage).toBe('');
+    });
+
+    it('should allow a valid move that is bigger than in play after the first round', () => {
+        const gameState = getBaseGameState({ inPlay: { playerId: 'p2', hand: ['5D'], type: 'single' }, turnNumber: 1 });
+        const result = checkMoveValidity(gameState, 'p2', ['6D']);
+        expect(result.isValid).toBe(true);
+        expect(result.errorMessage).toBe('');
+    });
+
+    it('should reject first move without 3D', () => {
+        const gameState = getBaseGameState();
+        const result = checkMoveValidity(gameState, 'p1', ['4D']);
+        expect(result.isValid).toBe(false);
+        expect(result.errorMessage).toMatch(/3 of diamonds/);
+    });
+
+    it('should reject move if not player turn', () => {
+        const gameState = getBaseGameState();
+        const result = checkMoveValidity(gameState, 'p2', ['5D']);
+        expect(result.isValid).toBe(false);
+        expect(result.errorMessage).toMatch(/not the your turn/);
+    });
+
+    it('should reject move if player does not have the cards', () => {
+        const gameState = getBaseGameState();
+        const result = checkMoveValidity(gameState, 'p1', ['5D']);
+        expect(result.isValid).toBe(false);
+        expect(result.errorMessage).toMatch(/do not have the cards/);
+    });
+
+    it('should reject pass on new round after first move', () => {
+        const gameState = getBaseGameState({ turnNumber: 1, inPlay: null });
+        const result = checkMoveValidity(gameState, 'p2', []);
+        expect(result.isValid).toBe(false);
+        expect(result.errorMessage).toMatch(/cannot pass at a start of a new round/);
+    });
+
+    it('should reject invalid hand type', () => {
+        const gameState = getBaseGameState({ inPlay: { playerId: 'p2', hand: ['5D'], type: 'single' }, turnNumber: 1 });
+        const result = checkMoveValidity(gameState, 'p2', ['5D', '6D']);
+        expect(result.isValid).toBe(false);
+        expect(result.errorMessage).toMatch(/not a valid hand/);
+    });
+
+    it('should reject move not bigger than in play', () => {
+        const gameState = getBaseGameState({ inPlay: { playerId: 'p3', hand: ['7D'], type: 'single' }, turnNumber: 3 });
+        const result = checkMoveValidity(gameState, 'p1', ['4D']);
+        expect(result.isValid).toBe(false);
+        expect(result.errorMessage).toMatch(/must be bigger/);
     });
 });

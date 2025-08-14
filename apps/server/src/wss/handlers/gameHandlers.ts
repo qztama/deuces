@@ -1,18 +1,10 @@
 import { WSMessageGameUpdated, PlayerGameState, Card } from '@deuces/shared';
-import {
-    getGameRedisKey,
-    getGameState,
-    getNextGameState,
-    initGame,
-    validateMove,
-    subscribeToGame,
-    getGameStateByRoomCode,
-    saveGameState,
-} from '../../services/game/index.js';
-import * as redisService from '../../services/redis.js';
-import { getRoomInfoByRoomCode, saveRoomInfo } from '../../services/room.js';
-import { WSContext } from '../types.js';
-import { getPlayerGameState } from '../../services/game/utils.js';
+import { getGameStateByRoomCode, saveGameState } from 'services/game/gameRepository';
+import { initGame, validateMove, progressGameState, subscribeToGame } from '../../services/game/index';
+import * as redisService from '../../services/redis';
+import { getRoomInfoByRoomCode, saveRoomInfo } from '../../services/room';
+import { WSContext } from '../types';
+import { getPlayerGameState } from '../../services/game/utils';
 
 export async function handleStartGame(ctx: WSContext) {
     const { roomCode } = ctx;
@@ -86,19 +78,13 @@ export async function handlePlayMove(ctx: WSContext, move: Card[]): Promise<null
         throw new Error(`Could not find roomCode for client ${ctx.clientId}`);
     }
 
-    const redisClient = redisService.getClient();
-    const gameRedisKey = getGameRedisKey(roomCode);
-    const gameState = await getGameState(redisClient, gameRedisKey);
-
     // 1. validate move
-    const { isValid: isValidMove, errorMessage: invalidMessage } = await validateMove(gameState, clientId, move);
+    const { isValid: isValidMove, errorMessage: invalidMessage } = await validateMove(roomCode, clientId, move);
 
     // 2. update redis with next game state
     if (isValidMove) {
-        const nextGameState = getNextGameState(gameState, move);
+        const nextGameState = await progressGameState(roomCode, move);
         const isGameOver = nextGameState.winners.length === nextGameState.players.length - 1;
-
-        await saveGameState(roomCode, nextGameState);
 
         if (isGameOver) {
             const roomInfo = await getRoomInfoByRoomCode(roomCode);
