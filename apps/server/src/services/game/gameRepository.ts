@@ -3,6 +3,8 @@ import { HttpError } from '../../utils/error';
 import * as redisService from '../redis';
 import { GameState } from './types';
 
+const GAME_TTL_SECONDS = 1800; // 30 minutes
+
 export function getGameRedisKey(roomCode: string) {
     return `game:${roomCode}`;
 }
@@ -23,8 +25,17 @@ export async function getGameStateByRoomCode(roomCode: string) {
     return await getGameState(redisClient, gameRedisKey);
 }
 
-export async function saveGameState(roomCode: string, gameState: GameState) {
+export async function saveGameState(
+    roomCode: string,
+    gameState: GameState,
+    options: { keepTTL: boolean } = { keepTTL: true }
+) {
     const redisClient = redisService.getClient();
     const gameRedisKey = getGameRedisKey(roomCode);
-    await redisClient.set(gameRedisKey, JSON.stringify(gameState));
+
+    if (options.keepTTL) {
+        await redisClient.set(gameRedisKey, JSON.stringify(gameState), { KEEPTTL: true });
+    } else {
+        await redisClient.set(gameRedisKey, JSON.stringify(gameState), { EX: GAME_TTL_SECONDS });
+    }
 }

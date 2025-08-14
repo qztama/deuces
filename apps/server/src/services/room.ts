@@ -5,6 +5,8 @@ import { WSContext } from '../wss/types';
 import * as redisService from './redis';
 import { AvatarOptions, Room } from '@deuces/shared';
 
+const ROOM_TTL_SECONDS = 3600; // 1 hour
+
 const alphabet = 'abcdefghijklmnopqrstuvwxyz';
 
 function generateRoomCode() {
@@ -41,7 +43,7 @@ export async function getRoomInfoByRoomCode(roomCode: string): Promise<Room> {
 export async function saveRoomInfo(roomCode: string, roomInfo: Room): Promise<void> {
     const redisClient = redisService.getClient();
     const roomRedisKey = getRoomRedisKey(roomCode);
-    await redisClient.set(roomRedisKey, JSON.stringify(roomInfo));
+    await redisClient.set(roomRedisKey, JSON.stringify(roomInfo), { EX: ROOM_TTL_SECONDS });
 }
 
 export async function create() {
@@ -62,7 +64,7 @@ export async function create() {
         isGameOver: false,
     };
 
-    redisClient.set(roomRedisKey, JSON.stringify(roomData));
+    await saveRoomInfo(roomCode, roomData);
 
     return roomCode;
 }

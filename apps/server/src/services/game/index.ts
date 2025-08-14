@@ -27,7 +27,7 @@ export async function initGame(
     }
 
     const newGameState = getNewGameState(clients);
-    await saveGameState(roomCode, newGameState);
+    await saveGameState(roomCode, newGameState, { keepTTL: false });
     return newGameState;
 }
 

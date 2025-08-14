@@ -1,5 +1,5 @@
 import { WSMessageGameUpdated, PlayerGameState, Card } from '@deuces/shared';
-import { getGameStateByRoomCode, saveGameState } from 'services/game/gameRepository';
+import { getGameStateByRoomCode } from 'services/game/gameRepository';
 import { initGame, validateMove, progressGameState, subscribeToGame } from '../../services/game/index';
 import * as redisService from '../../services/redis';
 import { getRoomInfoByRoomCode, saveRoomInfo } from '../../services/room';
