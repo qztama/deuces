@@ -35,7 +35,7 @@ app.use(
     })
 );
 
-app.get('/ping', (req: Request, res: Response) => {
+app.get('/ping', async (req: Request, res: Response) => {
     res.status(200).send('pong');
 });
 

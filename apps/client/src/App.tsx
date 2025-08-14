@@ -10,7 +10,7 @@ import { LoadingServer } from './components/LoadingServer';
 import { ServerError } from './components/ServerError';
 import { AppRouter } from './router/AppRouter';
 
-const SERVER_CHECK_FREQUENCY = 3000; // 3 seconds
+const SERVER_CHECK_FREQUENCY = 5000; // 5 seconds
 
 const MainContent = () => {
     const [isServerReady, setIsServerReady] = useState(false);
@@ -18,11 +18,12 @@ const MainContent = () => {
     const [showLoading, setShowLoading] = useState(false);
 
     useEffect(() => {
+        let retries = 0;
+        let isMounted = true;
+
         const loadingTimer = setTimeout(() => {
             setShowLoading(true);
         }, 300);
-
-        let retries = 0;
 
         const checkServer = async () => {
             try {
@@ -36,7 +37,10 @@ const MainContent = () => {
                     setError(true);
                 }
             } catch (err) {
-                if (axios.isCancel(err)) {
+                if (!isMounted) return; // Prevent state update if component is unmounted
+
+                if (axios.isAxiosError(err) && err.code === 'ECONNABORTED') {
+                    console.log('retries', retries);
                     if (retries >= 5) {
                         setError(true);
                     } else {
@@ -52,6 +56,7 @@ const MainContent = () => {
         checkServer();
 
         return () => {
+            isMounted = false;
             clearTimeout(loadingTimer);
         };
     }, []);

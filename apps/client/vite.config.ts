@@ -4,14 +4,14 @@ import svgr from 'vite-plugin-svgr';
 import path from 'path';
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     plugins: [react(), svgr()],
     esbuild: {
-        drop: ['console', 'debugger'],
+        drop: mode === 'production' ? ['console', 'debugger'] : [],
     },
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),
         },
     },
-});
+}));

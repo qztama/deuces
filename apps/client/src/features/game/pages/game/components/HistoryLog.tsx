@@ -6,7 +6,7 @@ import { GameEvent, ObfuscatedPlayer, Rank, Suit } from '@deuces/shared';
 import { useGameContext } from '../../../contexts/GameContext';
 import { PlayingCardIcon } from '../../../components/PlayingCard/PlayingCardIcon';
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 interface HistoryLogProps {
     isOpen: boolean;
