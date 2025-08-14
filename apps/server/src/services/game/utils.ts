@@ -192,7 +192,7 @@ export function checkMoveValidity(
     return { isValid: true, errorMessage: '' };
 }
 
-export function getNextTurnNumber(curTurnNumber: number, nextPlayers: Player[]): number {
+function getNextTurnNumber(curTurnNumber: number, nextPlayers: Player[]): number {
     const totalPlayers = nextPlayers.length;
     let nextTurnNumber = curTurnNumber + 1;
 
@@ -216,6 +216,7 @@ export function getNextTurnNumber(curTurnNumber: number, nextPlayers: Player[]):
     return nextTurnNumber;
 }
 
+// Assumes that the move is valid
 export function getNextGameState(curGameState: GameState, move: Card[]): GameState {
     const { players, turnNumber, inPlay, history, winners } = curGameState;
     const curPlayer = players[turnNumber % players.length];

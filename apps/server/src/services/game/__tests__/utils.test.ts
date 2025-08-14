@@ -1,4 +1,11 @@
-import { generateOrderedDeck, generateShuffledDeck, dealCards, determineTurnOrder, checkMoveValidity } from '../utils';
+import {
+    generateOrderedDeck,
+    generateShuffledDeck,
+    dealCards,
+    determineTurnOrder,
+    checkMoveValidity,
+    getNextGameState,
+} from '../utils';
 import { RANKS, SUITS } from '../constants';
 import { Card, Player, GameState } from '../types';
 
@@ -183,5 +190,124 @@ describe('checkMoveValidity', () => {
         const result = checkMoveValidity(gameState, 'p1', ['4D']);
         expect(result.isValid).toBe(false);
         expect(result.errorMessage).toMatch(/must be bigger/);
+    });
+});
+
+describe('getNextGameState', () => {
+    const basePlayers: Player[] = [
+        { id: 'p1', name: 'A', avatar: 'ASTRO', hand: ['3D', '4D'], hasPassed: false },
+        { id: 'p2', name: 'B', avatar: 'GORILLA', hand: ['5D', '6D'], hasPassed: false },
+        { id: 'p3', name: 'C', avatar: 'MOUSE', hand: ['7D', '8D'], hasPassed: false },
+    ];
+
+    function getBaseGameState(overrides = {}) {
+        return {
+            players: JSON.parse(JSON.stringify(basePlayers)),
+            inPlay: null,
+            turnNumber: 0,
+            history: [],
+            winners: [],
+            ...overrides,
+        } as GameState;
+    }
+
+    it('should progress game state for a valid move', () => {
+        const gameState = getBaseGameState();
+        const nextState = getNextGameState(gameState, ['3D']);
+        expect(nextState.players[0].hand).not.toContain('3D');
+        expect(nextState.inPlay?.hand).toEqual(['3D']);
+        expect(nextState.turnNumber).toBe(1);
+        expect(nextState.history.length).toBe(1);
+        expect(nextState.history[0]).toEqual({
+            playerId: 'p1',
+            action: 'played',
+            cards: ['3D'],
+            type: 'single',
+        });
+    });
+
+    it('should skip players who have passed when determining next turn', () => {
+        const gameState = getBaseGameState({
+            players: [
+                { ...basePlayers[0], hand: ['3D'], hasPassed: false },
+                { ...basePlayers[1], hand: ['6D'], hasPassed: true },
+                { ...basePlayers[2], hand: ['8D'], hasPassed: false },
+            ],
+            winners: ['p1'],
+            turnNumber: 3,
+            inPlay: null,
+        });
+        // p1 plays last card
+        const nextState = getNextGameState(gameState, ['3D']);
+        // next turn should be p3 (index 2)
+        expect(nextState.turnNumber % nextState.players.length).toBe(2);
+    });
+
+    it('should skip players who have won when determining next turn', () => {
+        const gameState = getBaseGameState({
+            players: [
+                { ...basePlayers[0], hand: [], hasPassed: false },
+                { ...basePlayers[1], hand: ['5D', '6D'], hasPassed: false },
+                { ...basePlayers[2], hand: ['7D', '8D'], hasPassed: false },
+            ],
+            winners: ['p1'],
+            turnNumber: 2,
+            inPlay: null,
+        });
+
+        // p3's turn, should go to p2
+        const nextState = getNextGameState(gameState, ['7D']);
+        expect(nextState.turnNumber % nextState.players.length).toBe(1);
+    });
+
+    it('should mark player as passed for a pass move', () => {
+        const gameState = getBaseGameState({ inPlay: { playerId: 'p1', hand: ['3D'], type: 'single' }, turnNumber: 0 });
+        const nextState = getNextGameState(gameState, []);
+        expect(nextState.players[0].hasPassed).toBe(true);
+        expect(nextState.inPlay).not.toBeNull();
+        expect(nextState.history[nextState.history.length - 1].action).toBe('passed');
+    });
+
+    it('should reset hasPassed and start new round when all players pass', () => {
+        // Simulate all players have passed except current
+        const gameState = getBaseGameState({
+            inPlay: { playerId: 'p1', hand: ['3D'], type: 'single' },
+            turnNumber: 2,
+            players: [
+                { ...basePlayers[0], hasPassed: false },
+                { ...basePlayers[1], hasPassed: true },
+                { ...basePlayers[2], hasPassed: false },
+            ],
+        });
+        const nextState = getNextGameState(gameState, []);
+        expect(nextState.inPlay).toBeNull();
+        nextState.players.forEach((p) => expect(p.hasPassed).toBe(false));
+    });
+
+    it('should add player to winners if they play their last card', () => {
+        const gameState = getBaseGameState({
+            players: [
+                { id: 'p1', name: 'A', avatar: 'ASTRO', hand: ['3D'], hasPassed: false },
+                { id: 'p2', name: 'B', avatar: 'GORILLA', hand: ['5D', '6D'], hasPassed: false },
+                { id: 'p3', name: 'C', avatar: 'MOUSE', hand: ['7D', '8D'], hasPassed: false },
+            ],
+            turnNumber: 0,
+        });
+        const nextState = getNextGameState(gameState, ['3D']);
+        expect(nextState.winners).toContain('p1');
+    });
+
+    it("should remove the played cards from the player's hand", () => {
+        const gameState = getBaseGameState({
+            players: [
+                { ...basePlayers[0], hand: ['3D', '4D'], hasPassed: false },
+                { ...basePlayers[1], hand: ['5D', '6D'], hasPassed: false },
+                { ...basePlayers[2], hand: ['7D', '8D'], hasPassed: false },
+            ],
+            turnNumber: 0,
+        });
+        const nextState = getNextGameState(gameState, ['3D']);
+        expect(nextState.players[0].hand).not.toContain('3D');
+        expect(nextState.players[0].hand).toHaveLength(1);
     });
 });
