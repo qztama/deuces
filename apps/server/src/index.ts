@@ -35,6 +35,10 @@ app.use(
     })
 );
 
+app.get('/ping', (req: Request, res: Response) => {
+    res.status(200).send('pong');
+});
+
 app.get('/create', async (req: Request, res: Response) => {
     try {
         const roomCode = await createRoom();
